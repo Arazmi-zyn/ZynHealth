@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+<meta charset="UTF-8">
+  <!-- ══ PWA META TAGS ══ -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ZynHealth">
+  <meta name="theme-color" content="#10b981">
+  <meta name="msapplication-TileColor" content="#10b981">
+  <meta name="msapplication-TileImage" content="icons/icon-144.png">
+  <!-- Favicon & Apple Touch Icons -->
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
+  <!-- Open Graph -->
+  <meta property="og:title" content="ZynHealth - Manajemen Obat Anak">
+  <meta property="og:description" content="Pantau & kelola obat si kecil dengan aman dan mudah.">
+  <meta property="og:image" content="icons/icon-512.png">
+  <meta property="og:type" content="website">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ZynHealth | Manajemen Obat Anak</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+(function(){var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}else{document.documentElement.classList.add('light');}})();
+tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Nunito','sans-serif']},colors:{brand:{50:'#ecfdf5',100:'#d1fae5',400:'#34d399',500:'#10b981',600:'#059669',700:'#047857'}}}}}
+</script>
+<style>
+*{box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:#f0fdf9;}
+.dark body{background:#0a1628;}
+.bg-mesh{background:radial-gradient(at 20% 20%,#d1fae5 0%,transparent 50%),radial-gradient(at 80% 10%,#ccfbf1 0%,transparent 40%),radial-gradient(at 60% 80%,#ecfdf5 0%,transparent 50%),#f8fafc;}
+.dark .bg-mesh{background:radial-gradient(at 10% 20%,rgba(5,150,105,.12) 0%,transparent 50%),radial-gradient(at 80% 80%,rgba(6,182,212,.08) 0%,transparent 50%),#0a1628;}
+.glass{background:rgba(255,255,255,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.6);}
+.dark .glass{background:rgba(15,30,55,.72);border:1px solid rgba(255,255,255,.06);}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+@keyframes dotBounce{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
+.float-1{animation:float 3s ease-in-out infinite;}
+.float-2{animation:float 4s ease-in-out infinite .5s;}
+.float-3{animation:float 5s ease-in-out infinite 1s;}
+.fade-up{animation:fadeSlideUp .45s ease forwards;}
+.scale-in{animation:scaleIn .3s ease forwards;}
+.skeleton{background:linear-gradient(90deg,#e2e8f0 25%,#cbd5e1 50%,#e2e8f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:12px;}
+.dark .skeleton{background:linear-gradient(90deg,#1e293b 25%,#334155 50%,#1e293b 75%);background-size:200% 100%;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:#a7f3d0;border-radius:99px;}
+.dark ::-webkit-scrollbar-thumb{background:#1e4030;}
+.hide-scroll{-ms-overflow-style:none;scrollbar-width:none;}
+.hide-scroll::-webkit-scrollbar{display:none;}
+.nav-active{background:linear-gradient(135deg,#d1fae5,#ccfbf1);color:#059669!important;font-weight:800;}
+.dark .nav-active{background:rgba(5,150,105,.18);color:#34d399!important;}
+.card-hover{transition:all .3s cubic-bezier(.4,0,.2,1);}
+.card-hover:hover{transform:translateY(-5px);box-shadow:0 20px 40px -10px rgba(16,185,129,.15);}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:800;}
+.field-label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#64748b;margin-bottom:5px;}
+.dark .field-label{color:#94a3b8;}
+.field-input{width:100%;padding:9px 14px;background:rgba(255,255,255,.8);border:1px solid #e2e8f0;border-radius:14px;font-size:13px;font-weight:600;font-family:'Nunito',sans-serif;color:#1e293b;transition:all .2s;}
+.dark .field-input{background:rgba(15,23,42,.6);border-color:#334155;color:#e2e8f0;}
+.field-input:focus{outline:none;border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.15);}
+.dot-bounce{width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;animation:dotBounce 1.2s infinite ease-in-out both;}
+.dot-bounce:nth-child(1){animation-delay:-.32s;}
+.dot-bounce:nth-child(2){animation-delay:-.16s;}
+@media print{
+  @page{size:A4 portrait;margin:1.5cm;}
+  body,html{overflow:visible!important;height:auto!important;background:white!important;color:black!important;}
+  .no-print,aside,header,#sidebarOverlay,#view-dashboard,#view-list,#view-catalog,#view-kalkulator,#view-chatai,#view-settings,#emptyState,#medicineContainer{display:none!important;}
+  main,#mainContainer{overflow:visible!important;height:auto!important;position:static!important;display:block!important;width:100%!important;padding:0!important;}
+  #view-print{display:block!important;}
+  .print-table{width:100%!important;border-collapse:collapse!important;}
+  .print-table tr{page-break-inside:avoid!important;}
+  .print-table th,.print-table td{padding:10px 8px!important;text-align:left!important;color:black!important;}
+  .print-table th{border-bottom:2px solid #1e293b!important;font-size:11px!important;text-transform:uppercase;font-weight:bold!important;}
+  .print-table img{width:55px!important;height:55px!important;object-fit:contain;border:1px solid #cbd5e1;border-radius:6px;}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+}
+</style>
+</head>
+<body class="flex h-screen overflow-hidden antialiased text-slate-800 dark:text-slate-100 bg-mesh">
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 no-print">
+  <div class="absolute w-80 h-80 rounded-full bg-emerald-300/30 dark:bg-emerald-700/15 blur-3xl -top-24 -left-24 float-1 pointer-events-none"></div>
+  <div class="absolute w-64 h-64 rounded-full bg-teal-300/20 dark:bg-teal-700/10 blur-3xl bottom-0 right-0 float-2 pointer-events-none"></div>
+  <div class="absolute top-16 right-12 float-1 text-5xl opacity-20 select-none pointer-events-none">💊</div>
+  <div class="absolute bottom-20 left-16 float-2 text-4xl opacity-15 select-none pointer-events-none">🩺</div>
+  <div class="glass w-[92%] max-w-sm px-6 py-8 rounded-3xl shadow-2xl shadow-emerald-500/10 scale-in flex flex-col items-center text-center">
+    <div id="loginLogoWrap" class="w-24 h-24 rounded-3xl overflow-hidden shadow-xl shadow-teal-400/30 mb-4 bg-white">
+      <img src="icons/icon-192.png" alt="ZynHealth" class="w-full h-full object-cover">
+    </div>
+    <h2 id="loginAppName" class="text-2xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">ZynHealth</h2>
+    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-7 font-600">Catat Obat. Ingat Kesehatan. Jaga Keluarga.</p>
+    <div class="flex gap-4 mb-7" id="pinDotRow">
+      <span class="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 transition-all duration-200" id="dot-1"></span>
+      <span class="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 transition-all duration-200" id="dot-2"></span>
+      <span class="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 transition-all duration-200" id="dot-3"></span>
+      <span class="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 transition-all duration-200" id="dot-4"></span>
+    </div>
+    <div class="grid grid-cols-3 gap-2.5 w-full max-w-[260px]">
+      <button onclick="pressPin('1')" class="py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-2xl font-bold text-lg shadow-sm border border-slate-100 dark:border-slate-700 active:scale-95 transition-all hover:bg-emerald-50">1</button>
+      <button onclick="pressPin('2')" class="py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-2xl font-bold text-lg shadow-sm border border-slate-100 dark:border-slate-700 active:scale-95 transition-all hover:bg-emerald-50">2</button>
+      <button onclick="pressPin('3')" class="py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-2xl font-bold text-lg shadow-sm border border-slate-100 dark:border-slate-700 active:scale-95 transition-all hover:bg-emerald-50">3</button>
+      <button onclick="pressPin('4')" class="py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-2xl font-bold text-lg shadow-sm border border-slate-100 dark:border-slate-700 active:scale-95 transition-all hover:bg-emerald-50">4</button>
+      <button onclick="pressPin('5')" class="py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-2xl font-bold text-lg shadow-sm border border-slate-100 dark:border-slate-700 active:scale-95 transition-all hover:bg-emerald-50">5</button>
+      <button onclick="pressPin('6')" class="py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-2xl font-bold text-lg shadow-sm border border-slate-100 dark:border-slate-700 active:scale-95 transition-all hover:bg-emerald-50">6</button>
+      <button onclick="pressPin('7')" class="py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-2xl font-bold text-lg shadow-sm border border-slate-100 dark:border-slate-700 active:scale-95 transition-all hover:bg-emerald-50">7</button>
+      <button onclick="pressPin('8')" class="py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-2xl font-bold text-lg shadow-sm border border-slate-100 dark:border-slate-700 active:scale-95 transition-all hover:bg-emerald-50">8</button>
+      <button onclick="pressPin('9')" class="py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-2xl font-bold text-lg shadow-sm border border-slate-100 dark:border-slate-700 active:scale-95 transition-all hover:bg-emerald-50">9</button>
+      <button onclick="clearPin()" class="py-3 bg-red-50 dark:bg-red-950/30 text-red-500 rounded-2xl shadow-sm border border-red-100 dark:border-red-900/30 active:scale-95 flex items-center justify-center"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+      <button onclick="pressPin('0')" class="py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-2xl font-bold text-lg shadow-sm border border-slate-100 dark:border-slate-700 active:scale-95 transition-all hover:bg-emerald-50">0</button>
+      <button onclick="deleteLastPin()" class="py-3 bg-slate-50 dark:bg-slate-800 text-slate-500 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 active:scale-95 flex items-center justify-center"><i data-lucide="delete" class="w-4 h-4"></i></button>
+    </div>
+    <p class="text-[10px] text-slate-400 mt-5 font-600">Default PIN: <span class="text-teal-600 dark:text-teal-400 font-800">Ayah (1111)</span> · <span class="text-blue-500 dark:text-blue-400 font-800">Bunda (2222)</span></p>
+  </div>
+</div>
+
+<div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/40 z-30 hidden backdrop-blur-sm transition-opacity opacity-0 no-print" onclick="toggleSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside id="mainSidebar" class="fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 z-40 w-64 glass border-r border-white/60 dark:border-slate-800/80 shadow-xl flex flex-col transition-transform duration-300 no-print h-full shrink-0">
+  <div class="p-5 flex items-center justify-between border-b border-slate-100/80 dark:border-slate-800/80">
+    <div class="flex items-center gap-3">
+      <div id="brandLogoWrap" class="w-10 h-10 rounded-xl overflow-hidden shadow-md bg-white">
+        <img src="icons/icon-96.png" alt="ZynHealth" class="w-full h-full object-cover">
+      </div>
+      <span id="appBrandName" class="text-xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">ZynHealth</span>
+    </div>
+    <button onclick="toggleSidebar()" class="md:hidden p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
+  </div>
+  <nav class="flex-1 px-3 mt-4 space-y-1 overflow-y-auto hide-scroll">
+    <a href="#" id="menu-dashboard" onclick="switchTab('dashboard')" class="nav-item nav-active flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-700 transition-all">
+      <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>Dashboard
+    </a>
+    <a href="#" id="menu-list" onclick="switchTab('list')" class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-600 text-slate-500 dark:text-slate-400 hover:bg-emerald-50/50 dark:hover:bg-slate-800/50 hover:text-slate-800 dark:hover:text-white transition-all">
+      <i data-lucide="pill" class="w-4 h-4 shrink-0"></i>Daftar Obat
+    </a>
+    <a href="#" id="menu-catalog" onclick="switchTab('catalog')" class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-600 text-slate-500 dark:text-slate-400 hover:bg-emerald-50/50 dark:hover:bg-slate-800/50 hover:text-slate-800 dark:hover:text-white transition-all">
+      <i data-lucide="notebook-tabs" class="w-4 h-4 shrink-0"></i>Katalog &amp; Catatan
+    </a>
+    <a href="#" id="menu-kalkulator" onclick="switchTab('kalkulator')" class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-600 text-slate-500 dark:text-slate-400 hover:bg-emerald-50/50 dark:hover:bg-slate-800/50 hover:text-slate-800 dark:hover:text-white transition-all">
+      <i data-lucide="calculator" class="w-4 h-4 shrink-0"></i>Kalkulator Dosis
+      <span class="ml-auto text-[9px] font-black px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400">BARU</span>
+    </a>
+    <a href="#" id="menu-chatai" onclick="switchTab('chatai')" class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-600 text-slate-500 dark:text-slate-400 hover:bg-emerald-50/50 dark:hover:bg-slate-800/50 hover:text-slate-800 dark:hover:text-white transition-all">
+      <i data-lucide="message-square-text" class="w-4 h-4 shrink-0"></i>Asisten Chat AI
+    </a>
+    <a href="#" id="menu-settings" onclick="switchTab('settings')" class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-600 text-slate-500 dark:text-slate-400 hover:bg-emerald-50/50 dark:hover:bg-slate-800/50 hover:text-slate-800 dark:hover:text-white transition-all">
+      <i data-lucide="settings-2" class="w-4 h-4 shrink-0"></i>Pengaturan
+    </a>
+    <button onclick="printData()" class="w-full text-left flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-600 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-800 dark:hover:text-white transition-all">
+      <i data-lucide="printer" class="w-4 h-4 shrink-0"></i>Cetak Laporan
+    </button>
+  </nav>
+  <div class="p-4 border-t border-slate-100/80 dark:border-slate-800/80">
+    <div class="flex items-center gap-2 px-2">
+      <div class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-xs font-black" id="sidebarRoleAvatar">P</div>
+      <div>
+        <p class="text-[11px] font-800 text-slate-700 dark:text-slate-300" id="sidebarRoleName">ZynHealth</p>
+        <p class="text-[9px] text-slate-400">v2.0 · 2026</p>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden bg-transparent">
+  <header class="glass border-b border-white/60 dark:border-slate-800/80 px-4 md:px-8 py-3 flex justify-between items-center no-print z-10 sticky top-0 shrink-0">
+    <div class="flex items-center gap-2 md:gap-3">
+      <button onclick="toggleSidebar()" class="md:hidden p-1.5 rounded-xl hover:bg-emerald-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"><i data-lucide="menu" class="w-5 h-5"></i></button>
+      <div>
+        <h2 class="text-base md:text-lg font-black text-slate-800 dark:text-white truncate max-w-[190px] md:max-w-none leading-tight" id="navGreeting">Halo 👋</h2>
+        <p class="text-[10px] text-slate-400 hidden sm:block font-600">Catat Obat. Ingat Kesehatan. Jaga Keluarga.</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-1 md:gap-2">
+      <button id="alertBadgeBtn" onclick="switchTab('list');setQuickFilter('expired')" class="hidden relative p-2 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-950/20 text-orange-500 transition-all" title="Ada obat hampir kadaluarsa!">
+        <i data-lucide="bell" class="w-4 h-4 md:w-5 md:h-5"></i>
+        <span id="alertBadgeCount" class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-orange-500 text-white text-[8px] font-black rounded-full flex items-center justify-center">0</span>
+      </button>
+      <button onclick="lockApp()" class="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500 transition-all" title="Kunci Aplikasi"><i data-lucide="lock" class="w-4 h-4 md:w-5 md:h-5"></i></button>
+      <button onclick="toggleDarkMode()" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-slate-600 dark:text-slate-300">
+        <i data-lucide="sun" class="w-4 h-4 md:w-5 md:h-5 hidden dark:block"></i>
+        <i data-lucide="moon" class="w-4 h-4 md:w-5 md:h-5 dark:hidden"></i>
+      </button>
+    </div>
+  </header>
+  <div class="flex-1 overflow-y-auto p-4 md:p-6 relative" id="mainContainer">
+
+<!-- VIEW DASHBOARD -->
+<div id="view-dashboard" class="space-y-5 pb-20">
+  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 p-6 md:p-8 text-white shadow-xl shadow-emerald-500/25">
+    <div class="absolute -right-8 -top-8 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+    <div class="absolute right-16 bottom-0 text-6xl opacity-20 float-1 select-none pointer-events-none">💊</div>
+    <div class="absolute right-6 top-6 text-3xl opacity-15 float-2 select-none pointer-events-none">🩺</div>
+    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="space-y-2 max-w-lg">
+        <span class="px-3 py-1 bg-white/20 backdrop-blur rounded-full text-[10px] md:text-xs font-800 tracking-wide">💡 Kiat Sehat ZynHealth</span>
+        <h3 class="text-xl md:text-3xl font-black leading-tight pt-1">ZynHealth<br class="hidden md:block">Obat Anak Lebih Teratur</h3>
+        <p class="text-emerald-50/90 text-xs md:text-sm font-600 leading-relaxed">Catat, pantau &amp; kelola semua obat keluarga di satu tempat. Dengan asisten AI ZynBot untuk tanya jawab kesehatan anak.</p>
+      </div>
+      <div class="flex flex-row md:flex-col gap-3 shrink-0">
+        <button onclick="switchTab('list');openModal()" class="px-4 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur rounded-2xl text-white font-800 text-xs md:text-sm transition-all flex items-center gap-2 border border-white/30">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>Tambah Obat
+        </button>
+        <button onclick="switchTab('chatai')" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 backdrop-blur rounded-2xl text-white font-700 text-xs md:text-sm transition-all flex items-center gap-2 border border-white/20">
+          <i data-lucide="bot" class="w-4 h-4"></i>Tanya ZynBot
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+    <div class="glass p-4 md:p-5 rounded-3xl border border-white/60 dark:border-slate-800/60 card-hover flex flex-col gap-3">
+      <div class="flex justify-between items-start">
+        <p class="text-xs font-700 text-slate-500 dark:text-slate-400">Total Obat</p>
+        <div class="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl"><i data-lucide="database" class="w-4 h-4"></i></div>
+      </div>
+      <h3 class="text-3xl md:text-4xl font-black text-slate-800 dark:text-white" id="statTotalObat">0</h3>
+      <p class="text-[10px] font-600 text-slate-400">item tercatat</p>
+    </div>
+    <div class="glass p-4 md:p-5 rounded-3xl border border-white/60 dark:border-slate-800/60 card-hover flex flex-col gap-3">
+      <div class="flex justify-between items-start">
+        <p class="text-xs font-700 text-slate-500 dark:text-slate-400">Sedang Aktif</p>
+        <div class="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl"><i data-lucide="activity" class="w-4 h-4"></i></div>
+      </div>
+      <h3 class="text-3xl md:text-4xl font-black text-blue-500" id="statSeringDipakai">0</h3>
+      <p class="text-[10px] font-600 text-slate-400">dikonsumsi</p>
+    </div>
+    <div class="glass p-4 md:p-5 rounded-3xl border border-white/60 dark:border-slate-800/60 card-hover flex flex-col gap-3">
+      <div class="flex justify-between items-start">
+        <p class="text-xs font-700 text-slate-500 dark:text-slate-400">Segera Exp.</p>
+        <div class="p-2 bg-orange-100 dark:bg-orange-900/30 text-orange-500 rounded-xl"><i data-lucide="alert-triangle" class="w-4 h-4"></i></div>
+      </div>
+      <h3 class="text-3xl md:text-4xl font-black text-orange-500" id="statExpired">0</h3>
+      <p class="text-[10px] font-600 text-slate-400">≤ 90 hari lagi</p>
+    </div>
+    <div class="glass p-4 md:p-5 rounded-3xl border border-white/60 dark:border-slate-800/60 card-hover flex flex-col gap-3">
+      <div class="flex justify-between items-start">
+        <p class="text-xs font-700 text-slate-500 dark:text-slate-400">Obat Cocok</p>
+        <div class="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-500 rounded-xl"><i data-lucide="heart" class="w-4 h-4"></i></div>
+      </div>
+      <h3 class="text-3xl md:text-4xl font-black text-purple-500" id="statPernahCoba">0</h3>
+      <p class="text-[10px] font-600 text-slate-400">terbukti aman</p>
+    </div>
+  </div>
+
+  <!-- Expiry alert -->
+  <div id="expiryAlertBanner" class="hidden glass border border-orange-200 dark:border-orange-800/40 rounded-3xl p-4 md:p-5">
+    <div class="flex items-start gap-3">
+      <div class="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-xl text-orange-500 shrink-0 mt-0.5"><i data-lucide="alarm-clock" class="w-4 h-4"></i></div>
+      <div class="flex-1">
+        <h4 class="text-sm font-800 text-orange-700 dark:text-orange-400">⚠️ Perhatian Kadaluarsa!</h4>
+        <p class="text-xs text-orange-600/80 dark:text-orange-400/70 font-600 mt-0.5" id="expiryAlertText"></p>
+      </div>
+      <button onclick="switchTab('list');setQuickFilter('expired')" class="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white font-700 text-[10px] rounded-xl transition-all shrink-0">Lihat</button>
+    </div>
+  </div>
+
+  <!-- Charts + Tips -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="lg:col-span-2 glass rounded-3xl border border-white/60 dark:border-slate-800/60 p-5 md:p-6">
+      <h4 class="text-sm md:text-base font-800 text-slate-800 dark:text-white flex items-center gap-2 mb-5">
+        <div class="p-1.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg"><i data-lucide="bar-chart-3" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i></div>
+        Penyebaran Kategori Obat
+      </h4>
+      <div class="flex flex-col sm:flex-row items-center gap-6">
+        <div class="w-44 md:w-48 shrink-0"><canvas id="categoryChart"></canvas></div>
+        <div class="flex-1 w-full space-y-1" id="chartLegend"></div>
+      </div>
+    </div>
+    <div class="glass rounded-3xl border border-white/60 dark:border-slate-800/60 p-5 md:p-6 space-y-3">
+      <h4 class="text-sm font-800 text-slate-800 dark:text-white flex items-center gap-2">
+        <div class="p-1.5 bg-teal-100 dark:bg-teal-900/30 rounded-lg"><i data-lucide="heart-pulse" class="w-4 h-4 text-teal-600 dark:text-teal-400"></i></div>
+        Panduan Penting
+      </h4>
+      <div class="p-3.5 bg-emerald-50/80 dark:bg-emerald-900/15 rounded-2xl border border-emerald-100 dark:border-emerald-800/30 flex items-start gap-3">
+        <span class="text-xl">🌡️</span>
+        <div><h5 class="text-xs font-800 text-slate-700 dark:text-slate-200">Demam Tinggi</h5><p class="text-[10px] text-slate-500 dark:text-slate-400 font-600 mt-0.5 leading-relaxed">Demam &gt; 38.5°C lebih dari 3 hari, segera hubungi DSA.</p></div>
+      </div>
+      <div class="p-3.5 bg-blue-50/80 dark:bg-blue-900/15 rounded-2xl border border-blue-100 dark:border-blue-800/30 flex items-start gap-3">
+        <span class="text-xl">⚗️</span>
+        <div><h5 class="text-xs font-800 text-slate-700 dark:text-slate-200">Simpan dengan Benar</h5><p class="text-[10px] text-slate-500 dark:text-slate-400 font-600 mt-0.5 leading-relaxed">Antibiotik cair wajib di kulkas. Non-antibiotik cukup suhu ruangan.</p></div>
+      </div>
+      <div class="p-3.5 bg-purple-50/80 dark:bg-purple-900/15 rounded-2xl border border-purple-100 dark:border-purple-800/30 flex items-start gap-3">
+        <span class="text-xl">💊</span>
+        <div><h5 class="text-xs font-800 text-slate-700 dark:text-slate-200">Dosis Tepat</h5><p class="text-[10px] text-slate-500 dark:text-slate-400 font-600 mt-0.5 leading-relaxed">Selalu ukur dosis berdasarkan berat badan, bukan hanya usia.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Access -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <button onclick="switchTab('kalkulator')" class="glass p-4 rounded-2xl border border-white/60 dark:border-slate-800/60 flex flex-col items-center gap-2 card-hover">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center shadow-md text-white"><i data-lucide="calculator" class="w-5 h-5"></i></div>
+      <span class="text-xs font-800 text-slate-700 dark:text-slate-200 text-center leading-tight">Kalkulator Dosis</span>
+    </button>
+    <button onclick="switchTab('chatai')" class="glass p-4 rounded-2xl border border-white/60 dark:border-slate-800/60 flex flex-col items-center gap-2 card-hover">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-md text-white"><i data-lucide="bot" class="w-5 h-5"></i></div>
+      <span class="text-xs font-800 text-slate-700 dark:text-slate-200 text-center leading-tight">Tanya ZynBot</span>
+    </button>
+    <button onclick="switchTab('list');openModal()" class="glass p-4 rounded-2xl border border-white/60 dark:border-slate-800/60 flex flex-col items-center gap-2 card-hover">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center shadow-md text-white"><i data-lucide="plus" class="w-5 h-5"></i></div>
+      <span class="text-xs font-800 text-slate-700 dark:text-slate-200 text-center leading-tight">Tambah Obat</span>
+    </button>
+    <button onclick="printData()" class="glass p-4 rounded-2xl border border-white/60 dark:border-slate-800/60 flex flex-col items-center gap-2 card-hover">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-md text-white"><i data-lucide="printer" class="w-5 h-5"></i></div>
+      <span class="text-xs font-800 text-slate-700 dark:text-slate-200 text-center leading-tight">Cetak Laporan</span>
+    </button>
+  </div>
+</div>
+
+<!-- VIEW DAFTAR OBAT -->
+<div id="view-list" class="hidden space-y-4 pb-20">
+  <div class="glass p-4 rounded-3xl border border-white/60 dark:border-slate-800/60 space-y-3">
+    <div class="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3">
+      <div class="relative flex-1">
+        <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none"></i>
+        <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Cari nama obat, kegunaan, nama anak..." class="w-full pl-10 pr-4 py-2.5 bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-600 dark:text-white placeholder:text-slate-400 transition-all focus:outline-none focus:border-emerald-400">
+      </div>
+      <div class="flex items-center gap-2 flex-wrap justify-end">
+        <select id="filterKategori" onchange="renderTable()" class="px-3 py-2.5 bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-700 dark:text-white outline-none cursor-pointer">
+          <option value="All">Semua Kategori</option>
+        </select>
+        <div class="inline-flex rounded-2xl bg-slate-100 dark:bg-slate-900 p-1 border border-slate-200/60 dark:border-slate-700 shrink-0">
+          <button onclick="setViewMode('grid')" id="btnViewGrid" class="p-2 rounded-xl transition-all bg-white dark:bg-slate-700 shadow-sm text-emerald-600 dark:text-emerald-400"><i data-lucide="layout-grid" class="w-3.5 h-3.5"></i></button>
+          <button onclick="setViewMode('list')" id="btnViewList" class="p-2 rounded-xl transition-all text-slate-400 hover:text-slate-700 dark:hover:text-white"><i data-lucide="list" class="w-3.5 h-3.5"></i></button>
+        </div>
+        <button onclick="openModal()" class="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-2xl text-xs font-800 shadow-md shadow-emerald-500/25 flex items-center gap-1.5 transition-all shrink-0">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>Tambah
+        </button>
+      </div>
+    </div>
+    <div class="flex gap-2 overflow-x-auto hide-scroll pb-1 pt-1 border-t border-slate-100 dark:border-slate-800/80" id="quickFilters">
+      <button onclick="setQuickFilter('all')" id="qf-all" class="qf-btn shrink-0 px-3.5 py-1.5 rounded-full text-[10px] font-800 bg-emerald-500 text-white transition-all">Semua</button>
+      <button onclick="setQuickFilter('aktif')" id="qf-aktif" class="qf-btn shrink-0 px-3.5 py-1.5 rounded-full text-[10px] font-700 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-all">Sedang Aktif</button>
+      <button onclick="setQuickFilter('disimpan')" id="qf-disimpan" class="qf-btn shrink-0 px-3.5 py-1.5 rounded-full text-[10px] font-700 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-all">Disimpan</button>
+      <button onclick="setQuickFilter('cocok')" id="qf-cocok" class="qf-btn shrink-0 px-3.5 py-1.5 rounded-full text-[10px] font-700 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-all">Cocok &amp; Aman</button>
+      <button onclick="setQuickFilter('expired')" id="qf-expired" class="qf-btn shrink-0 px-3.5 py-1.5 rounded-full text-[10px] font-700 bg-white dark:bg-slate-800 text-orange-500 dark:text-orange-400 border border-slate-200 dark:border-slate-700 transition-all">⚠️ Hampir Exp</button>
+    </div>
+  </div>
+  <div id="medicineContainer" class="pb-4"></div>
+  <div id="emptyState" class="hidden flex-col items-center justify-center py-16 text-center">
+    <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/20 dark:to-teal-900/20 flex items-center justify-center mb-5 shadow-inner text-5xl">💊</div>
+    <h3 class="text-xl font-900 text-slate-700 dark:text-slate-200 mb-2">Belum Ada Obat</h3>
+    <p class="text-sm text-slate-500 dark:text-slate-400 font-600 mb-6 max-w-xs leading-relaxed">Catat obat si kecil agar tidak lupa dosis dan aturan pakainya.</p>
+    <button onclick="openModal()" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl text-sm font-800 shadow-md shadow-emerald-400/25">Tambah Data Pertama</button>
+  </div>
+</div>
+
+<!-- VIEW KATALOG & CATATAN -->
+<div id="view-catalog" class="hidden space-y-5 pb-20">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+    <div class="glass p-5 md:p-6 rounded-3xl border border-white/60 dark:border-slate-800/60 space-y-5">
+      <div>
+        <h3 class="text-base font-900 text-slate-800 dark:text-white flex items-center gap-2">
+          <div class="p-1.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl"><i data-lucide="tag" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i></div>
+          Kelola Kategori Obat
+        </h3>
+        <p class="text-xs text-slate-400 font-600 mt-1">Tambah atau edit kategori obat yang digunakan.</p>
+      </div>
+      <div class="flex gap-2">
+        <input type="text" id="newCategoryInput" placeholder="Contoh: Alergi, Antibiotik..." class="flex-1 px-3 py-2.5 bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-600 dark:text-white placeholder:text-slate-400 transition-all focus:outline-none focus:border-emerald-400">
+        <button onclick="addNewCategory()" class="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl text-xs font-800 shadow-sm flex items-center gap-1.5 shrink-0">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>Tambah
+        </button>
+      </div>
+      <div>
+        <h4 class="text-[10px] font-900 uppercase tracking-widest text-slate-400 mb-3">Kategori Saat Ini</h4>
+        <ul id="catalogList" class="space-y-2 max-h-72 overflow-y-auto pr-1"></ul>
+      </div>
+    </div>
+    <div class="glass p-5 md:p-6 rounded-3xl border border-white/60 dark:border-slate-800/60 space-y-5">
+      <div>
+        <h3 class="text-base font-900 text-slate-800 dark:text-white flex items-center gap-2">
+          <div class="p-1.5 bg-violet-100 dark:bg-violet-900/30 rounded-xl"><i data-lucide="pencil-line" class="w-4 h-4 text-violet-600 dark:text-violet-400"></i></div>
+          Catatan Pribadi Keluarga
+        </h3>
+        <p class="text-xs text-slate-400 font-600 mt-1">Catat jadwal kontrol, alergi, atau pengingat penting.</p>
+      </div>
+      <div class="p-4 bg-slate-50/80 dark:bg-slate-900/40 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-3">
+        <input type="text" id="noteTitleInput" placeholder="Judul catatan (mis: Alergi Budi)..." class="w-full px-3 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-600 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-400 transition-all">
+        <textarea id="noteContentInput" placeholder="Tulis catatan di sini..." rows="3" class="w-full px-3 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-600 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-400 transition-all resize-none"></textarea>
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex gap-2" id="noteColorPicker">
+            <button onclick="selectNoteColor('emerald')" class="w-6 h-6 rounded-full bg-emerald-400 note-color-btn transition-all ring-2 ring-emerald-400 ring-offset-2" data-color="emerald"></button>
+            <button onclick="selectNoteColor('sky')" class="w-6 h-6 rounded-full bg-sky-400 note-color-btn transition-all" data-color="sky"></button>
+            <button onclick="selectNoteColor('violet')" class="w-6 h-6 rounded-full bg-violet-400 note-color-btn transition-all" data-color="violet"></button>
+            <button onclick="selectNoteColor('rose')" class="w-6 h-6 rounded-full bg-rose-400 note-color-btn transition-all" data-color="rose"></button>
+            <button onclick="selectNoteColor('amber')" class="w-6 h-6 rounded-full bg-amber-400 note-color-btn transition-all" data-color="amber"></button>
+          </div>
+          <button onclick="saveNote()" class="px-4 py-2 bg-violet-500 hover:bg-violet-600 text-white rounded-xl text-xs font-800 flex items-center gap-1.5 transition-all shadow-sm">
+            <i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan
+          </button>
+        </div>
+      </div>
+      <div id="notesList" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+        <p class="text-center text-xs text-slate-400 font-600 py-6">Belum ada catatan. Tulis catatan di atas!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW KALKULATOR DOSIS -->
+<div id="view-kalkulator" class="hidden space-y-5 pb-20 max-w-2xl mx-auto">
+  <div class="glass p-5 md:p-8 rounded-3xl border border-white/60 dark:border-slate-800/60">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-2xl shadow-lg text-white"><i data-lucide="calculator" class="w-6 h-6"></i></div>
+      <div>
+        <h3 class="text-lg font-900 text-slate-800 dark:text-white">Kalkulator Dosis Anak</h3>
+        <p class="text-xs text-slate-400 font-600">Hitung dosis berdasarkan berat badan</p>
+      </div>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="field-label">Pilih Obat</label>
+        <select id="calcMedicine" onchange="updateCalcInfo()" class="field-input cursor-pointer">
+          <option value="paracetamol">💊 Paracetamol (Demam &amp; Nyeri)</option>
+          <option value="ibuprofen">💊 Ibuprofen (Demam &amp; Radang)</option>
+          <option value="amoxicillin">💊 Amoxicillin (Antibiotik)</option>
+          <option value="cetirizine">💊 Cetirizine (Alergi)</option>
+          <option value="zinc">💊 Zinc Sirup (Diare)</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="field-label">Berat Badan (kg)</label>
+          <input type="number" id="calcWeight" placeholder="mis: 12" min="1" max="100" step="0.5" class="field-input">
+        </div>
+        <div>
+          <label class="field-label">Usia</label>
+          <input type="text" id="calcAge" placeholder="mis: 2 tahun" class="field-input">
+        </div>
+      </div>
+      <div id="calcInfoBox" class="p-4 bg-sky-50/80 dark:bg-sky-900/15 rounded-2xl border border-sky-100 dark:border-sky-800/30">
+        <p class="text-xs font-800 text-sky-700 dark:text-sky-300 mb-1">ℹ️ Info Paracetamol</p>
+        <p class="text-[11px] text-sky-600/80 dark:text-sky-400/70 font-600 leading-relaxed" id="calcInfoText">Dosis: 10–15 mg/kg/kali · Tiap 4–6 jam · Maks. 5x/hari · Maks. 1000 mg/kali</p>
+      </div>
+      <button onclick="calculateDose()" class="w-full py-3.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-2xl font-900 text-base shadow-lg shadow-sky-500/25 transition-all flex items-center justify-center gap-2">
+        <i data-lucide="calculator" class="w-5 h-5"></i>Hitung Dosis
+      </button>
+    </div>
+  </div>
+  <div id="calcResult" class="hidden glass p-5 md:p-8 rounded-3xl border border-emerald-200 dark:border-emerald-800/40 scale-in">
+    <div class="flex items-center gap-2 mb-5">
+      <div class="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl"><i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 dark:text-emerald-400"></i></div>
+      <h4 class="text-base font-900 text-slate-800 dark:text-white">Hasil Perhitungan</h4>
+    </div>
+    <div class="grid grid-cols-2 gap-3" id="calcResultGrid"></div>
+    <div class="mt-5 p-4 bg-amber-50 dark:bg-amber-900/15 rounded-2xl border border-amber-100 dark:border-amber-800/30">
+      <p class="text-[11px] font-700 text-amber-700 dark:text-amber-400 leading-relaxed">⚠️ <strong>Peringatan:</strong> Ini adalah panduan umum. Selalu ikuti petunjuk dokter/apoteker. Hubungi DSA jika gejala parah.</p>
+    </div>
+  </div>
+  <div class="glass p-5 rounded-3xl border border-white/60 dark:border-slate-800/60">
+    <h4 class="text-sm font-900 text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4 text-violet-500"></i>Referensi Dosis Umum</h4>
+    <div class="overflow-x-auto">
+      <table class="w-full text-[11px] min-w-[400px]">
+        <thead><tr class="border-b border-slate-200 dark:border-slate-700">
+          <th class="pb-2 text-left font-900 text-slate-500 uppercase text-[9px] tracking-wider">Obat</th>
+          <th class="pb-2 text-left font-900 text-slate-500 uppercase text-[9px] tracking-wider">Dosis/kg</th>
+          <th class="pb-2 text-left font-900 text-slate-500 uppercase text-[9px] tracking-wider">Frekuensi</th>
+          <th class="pb-2 text-left font-900 text-slate-500 uppercase text-[9px] tracking-wider">Catatan</th>
+        </tr></thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+          <tr><td class="py-2.5 font-800 text-slate-700 dark:text-slate-200">Paracetamol</td><td class="py-2.5 text-slate-500">10–15 mg</td><td class="py-2.5 text-slate-500">Tiap 4–6 jam</td><td class="py-2.5 text-slate-400">Maks 5x/hari</td></tr>
+          <tr><td class="py-2.5 font-800 text-slate-700 dark:text-slate-200">Ibuprofen</td><td class="py-2.5 text-slate-500">5–10 mg</td><td class="py-2.5 text-slate-500">Tiap 6–8 jam</td><td class="py-2.5 text-slate-400">Setelah makan</td></tr>
+          <tr><td class="py-2.5 font-800 text-slate-700 dark:text-slate-200">Amoxicillin</td><td class="py-2.5 text-slate-500">25–50 mg/hari</td><td class="py-2.5 text-slate-500">3x/hari</td><td class="py-2.5 text-slate-400">Habiskan!</td></tr>
+          <tr><td class="py-2.5 font-800 text-slate-700 dark:text-slate-200">Cetirizine</td><td class="py-2.5 text-slate-500">0.25 mg</td><td class="py-2.5 text-slate-500">1x/hari</td><td class="py-2.5 text-slate-400">Malam hari</td></tr>
+          <tr><td class="py-2.5 font-800 text-slate-700 dark:text-slate-200">Zinc (Diare)</td><td class="py-2.5 text-slate-500">10–20 mg/hari</td><td class="py-2.5 text-slate-500">1x/hari</td><td class="py-2.5 text-slate-400">10–14 hari</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW CHAT AI -->
+<div id="view-chatai" class="hidden h-[calc(100vh-80px)] md:h-[calc(100vh-104px)] max-w-4xl mx-auto flex flex-col pb-3">
+  <div class="glass rounded-3xl border border-white/60 dark:border-slate-800/60 shadow-lg flex-1 flex flex-col overflow-hidden">
+    <div class="px-4 md:px-6 py-3 border-b border-slate-100/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/40 flex items-center gap-3 shrink-0">
+      <div class="w-9 h-9 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white shadow-md">
+        <i data-lucide="bot" class="w-5 h-5"></i>
+      </div>
+      <div class="flex-1">
+        <h3 class="font-900 text-slate-800 dark:text-white text-xs md:text-sm">ZynBot — Asisten Kesehatan Anak</h3>
+        <div class="flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+          <span class="text-[9px] md:text-[10px] text-slate-400 font-600">Online · Siap membantu 24/7</span>
+        </div>
+      </div>
+      <button onclick="clearChatHistory()" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all" title="Hapus Riwayat">
+        <i data-lucide="trash-2" class="w-4 h-4"></i>
+      </button>
+    </div>
+    <div id="chatMessageStream" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 bg-slate-50/30 dark:bg-slate-950/10">
+      <div class="flex items-start gap-2 max-w-[88%]">
+        <div class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white shrink-0 mt-0.5 shadow-sm">
+          <i data-lucide="bot" class="w-3.5 h-3.5"></i>
+        </div>
+        <div class="p-3.5 rounded-2xl rounded-tl-sm bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 shadow-sm text-[11px] md:text-xs leading-relaxed text-slate-700 dark:text-slate-200">
+          <p class="font-900 text-emerald-600 dark:text-emerald-400 mb-1">Halo Ayah &amp; Bunda! 👋</p>
+          Saya <strong>ZynBot</strong>, asisten kesehatan anak di ZynHealth. Tanya saya seputar obat anak, gejala ringan, dosis, atau tips kesehatan di rumah. Anda juga bisa <strong>upload foto label obat</strong> dan saya akan bantu membacakannya!
+          <br><br><span class="italic text-[9px] text-slate-400">⚠️ Jawaban bersifat edukatif, bukan pengganti diagnosis DSA resmi.</span>
+        </div>
+      </div>
+    </div>
+    <div id="chatTypingIndicator" class="hidden px-4 py-2.5 text-[10px] text-slate-400 flex items-center gap-2.5 shrink-0 bg-white/40 dark:bg-slate-900/40 border-t border-slate-100 dark:border-slate-800">
+      <div class="flex gap-1">
+        <span class="dot-bounce"></span>
+        <span class="dot-bounce"></span>
+        <span class="dot-bounce"></span>
+      </div>
+      <span class="font-600">ZynBot sedang mengetik...</span>
+    </div>
+    <div id="chatImagePreviewContainer" class="hidden px-4 py-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex items-center gap-3 shrink-0">
+      <div class="relative w-12 h-12 rounded-xl overflow-hidden bg-white dark:bg-slate-800 border border-slate-200 shadow flex items-center justify-center">
+        <img id="chatImagePreview" src="" class="w-full h-full object-contain p-1">
+        <button onclick="clearChatImage()" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center">
+          <i data-lucide="x" class="w-2.5 h-2.5"></i>
+        </button>
+      </div>
+      <p class="text-[10px] text-slate-400 font-600">Gambar siap dikirim bersama pertanyaan Anda.</p>
+    </div>
+    <div class="px-3 py-2 border-t border-slate-100 dark:border-slate-800 bg-white/30 dark:bg-slate-900/20 flex overflow-x-auto hide-scroll gap-2 shrink-0">
+      <button onclick="sendQuickPrompt('Berapa dosis parasetamol untuk anak 2 tahun berat 12 kg?')" class="shrink-0 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[10px] font-700 border border-emerald-100 dark:border-emerald-800/30 whitespace-nowrap">Dosis Paracetamol</button>
+      <button onclick="sendQuickPrompt('Cara meredakan demam anak di rumah tanpa obat?')" class="shrink-0 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-[10px] font-700 border border-blue-100 dark:border-blue-800/30 whitespace-nowrap">Kompres Demam</button>
+      <button onclick="sendQuickPrompt('Aturan simpan antibiotik cair yang sudah dibuka?')" class="shrink-0 px-3 py-1.5 rounded-xl bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-400 text-[10px] font-700 border border-violet-100 dark:border-violet-800/30 whitespace-nowrap">Simpan Antibiotik</button>
+      <button onclick="sendQuickPrompt('Tanda-tanda dehidrasi pada bayi dan anak kecil?')" class="shrink-0 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-[10px] font-700 border border-amber-100 dark:border-amber-800/30 whitespace-nowrap">Tanda Dehidrasi</button>
+    </div>
+    <div class="p-3 md:p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex gap-2 shrink-0 items-center">
+      <label class="p-2.5 bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-emerald-600 rounded-xl cursor-pointer transition-all shrink-0">
+        <i data-lucide="image-plus" class="w-4 h-4 md:w-5 md:h-5"></i>
+        <input type="file" id="chatImageFile" accept="image/*" onchange="handleChatImageUpload(event)" class="hidden">
+      </label>
+      <input type="hidden" id="chatImageBase64">
+      <input type="text" id="chatInput" onkeydown="handleChatKeyDown(event)" placeholder="Ketik pertanyaan atau upload gambar label obat..." class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs md:text-sm font-600 dark:text-white transition-all focus:outline-none focus:border-emerald-400 placeholder:text-slate-400">
+      <button onclick="sendMessage()" class="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-2xl shadow-sm transition-all shrink-0">
+        <i data-lucide="send" class="w-4 h-4 md:w-5 md:h-5"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW PENGATURAN -->
+<div id="view-settings" class="hidden space-y-5 pb-20 max-w-2xl mx-auto">
+  <div class="glass p-5 md:p-8 rounded-3xl border border-white/60 dark:border-slate-800/60 space-y-6">
+    <div>
+      <h3 class="text-lg font-900 text-slate-800 dark:text-white">Kustomisasi &amp; Keamanan</h3>
+      <p class="text-xs text-slate-400 font-600 mt-1">Sesuaikan tampilan, keamanan, dan AI engine aplikasi.</p>
+    </div>
+    <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+      <h4 class="text-xs font-900 uppercase tracking-widest text-slate-400 mb-4">Identitas Aplikasi</h4>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="field-label">Nama Aplikasi</label>
+          <input type="text" id="cfgAppName" class="field-input">
+        </div>
+        <div class="flex flex-col items-start gap-3 p-4 bg-slate-50/80 dark:bg-slate-900/40 rounded-2xl border border-slate-100 dark:border-slate-800">
+          <label class="field-label">Logo Aplikasi</label>
+          <div class="flex items-center gap-3">
+            <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden shadow flex items-center justify-center p-1.5">
+              <img id="cfgLogoPreview" src="https://cdn-icons-png.flaticon.com/512/3024/3024520.png" class="w-full h-full object-contain">
+            </div>
+            <label class="cursor-pointer px-3 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-800 text-[10px] rounded-xl border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 hover:bg-emerald-50 dark:hover:bg-slate-700 transition-all">
+              <i data-lucide="camera" class="w-3.5 h-3.5 text-emerald-500"></i>Unggah Logo
+              <input type="file" id="cfgLogoFile" accept="image/*" onchange="handleConfigLogoUpload(event)" class="hidden">
+            </label>
+            <input type="hidden" id="cfgLogoBase64">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+      <h4 class="text-xs font-900 uppercase tracking-widest text-slate-400 mb-1">Penyedia AI &amp; API Key</h4>
+      <p class="text-[10px] text-slate-400 font-600 mb-4">Pilih AI engine dan masukkan API Key untuk ZynBot.</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="field-label">Penyedia AI</label>
+          <select id="cfgAiProvider" class="field-input cursor-pointer">
+            <option value="gemini">🌐 Google Gemini</option>
+            <option value="openai">🤖 ChatGPT (OpenAI)</option>
+            <option value="claude">🧠 Claude (Anthropic)</option>
+            <option value="deepseek">💎 DeepSeek AI</option>
+            <option value="qwen">🌙 Qwen AI</option>
+            <option value="grok">⚡ Grok (xAI)</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">API Key</label>
+          <input type="password" id="cfgApiKey" placeholder="Masukkan API Key..." class="field-input">
+        </div>
+      </div>
+      <p class="text-[9px] text-slate-400 font-600 mt-2">Kosongkan jika pakai API bawaan gratis (Gemini).</p>
+    </div>
+    <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+      <h4 class="text-xs font-900 uppercase tracking-widest text-slate-400 mb-4">Keamanan PIN</h4>
+      <div class="flex items-center justify-between p-4 bg-slate-50/80 dark:bg-slate-900/40 rounded-2xl border border-slate-100 dark:border-slate-800 mb-4">
+        <div>
+          <h5 class="text-sm font-800 text-slate-700 dark:text-slate-200">Gunakan PIN Ganda</h5>
+          <p class="text-[10px] text-slate-400 font-600 mt-0.5">PIN terpisah untuk Ayah &amp; Bunda.</p>
+        </div>
+        <button type="button" id="cfgUsePIN" onclick="toggleUsePIN()" class="relative inline-flex h-6 w-11 items-center rounded-full bg-slate-300 dark:bg-slate-700 transition-colors focus:outline-none">
+          <span class="translate-x-1 inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"></span>
+        </button>
+      </div>
+      <div id="pinConfigSection" class="grid grid-cols-2 gap-4 hidden">
+        <div>
+          <label class="field-label">PIN Ayah (4 digit)</label>
+          <input type="password" id="cfgAppPINFather" pattern="[0-9]*" inputmode="numeric" maxlength="4" placeholder="••••" class="field-input text-center text-2xl tracking-[0.5em]">
+        </div>
+        <div>
+          <label class="field-label">PIN Bunda (4 digit)</label>
+          <input type="password" id="cfgAppPINMother" pattern="[0-9]*" inputmode="numeric" maxlength="4" placeholder="••••" class="field-input text-center text-2xl tracking-[0.5em]">
+        </div>
+      </div>
+    </div>
+    <div class="flex justify-end pt-2">
+      <button onclick="submitAppSettings()" class="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-900 rounded-2xl text-sm shadow-lg shadow-emerald-400/25 flex items-center justify-center gap-2 transition-all">
+        <i data-lucide="save" class="w-4 h-4"></i>Simpan Pengaturan ke Cloud
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW PRINT -->
+<div id="view-print" class="hidden">
+  <div class="text-center pb-4 border-b-2 border-slate-800">
+    <h1 class="text-2xl font-bold uppercase" id="printAppTitle">ZYNHEALTH REPORT</h1>
+    <p class="text-sm mt-1 font-semibold">Laporan Manajemen &amp; Inventaris Obat Kesehatan Anak</p>
+    <p class="text-xs text-slate-500 mt-1" id="printDate"></p>
+  </div>
+  <table class="print-table w-full mt-6">
+    <thead><tr><th class="w-16">Foto</th><th>Informasi Obat</th><th>Dosis &amp; Aturan</th><th>Penyimpanan &amp; Status</th></tr></thead>
+    <tbody id="printBody"></tbody>
+  </table>
+</div>
+
+  </div><!-- end mainContainer -->
+</main>
+
+<!-- LIGHTBOX -->
+<div id="imagePreviewModal" class="fixed inset-0 z-50 hidden no-print bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-opacity duration-300" onclick="closeImagePreview()">
+  <div class="relative max-w-md w-full" onclick="event.stopPropagation()">
+    <button onclick="closeImagePreview()" class="absolute -top-10 right-0 p-2 bg-white/20 text-white rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <img id="lightboxImage" src="" class="max-h-[70vh] w-full object-contain rounded-3xl shadow-2xl bg-white dark:bg-slate-950 p-3 border border-white/10">
+    <p id="lightboxCaption" class="text-white text-xs font-800 mt-3 text-center bg-slate-950/60 px-4 py-2 rounded-full backdrop-blur-sm mx-auto w-fit max-w-[90%] truncate"></p>
+  </div>
+</div>
+
+<!-- MODAL FORM -->
+<div id="formModal" class="fixed inset-0 z-[60] hidden no-print">
+  <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0" id="modalBackdrop" onclick="closeModal()"></div>
+  <div class="absolute inset-0 flex items-end md:items-center justify-center p-0 md:p-4 pointer-events-none">
+    <div id="modalContent" class="glass w-full max-w-xl rounded-t-3xl md:rounded-3xl shadow-2xl transform translate-y-full md:translate-y-0 opacity-0 transition-all duration-300 pointer-events-auto flex flex-col max-h-[92vh] md:max-h-[88vh]">
+      <div class="px-5 py-4 border-b border-slate-100/80 dark:border-slate-800/80 flex justify-between items-center shrink-0">
+        <h3 class="text-base font-900 text-slate-800 dark:text-white" id="modalTitle">Tambah Obat Baru</h3>
+        <button onclick="closeModal()" class="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-5 overflow-y-auto flex-1 space-y-4">
+        <form id="obatForm">
+          <input type="hidden" id="formId">
+          <div class="flex flex-col items-center gap-3 p-4 bg-slate-50/80 dark:bg-slate-900/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 mb-4">
+            <div class="relative w-20 h-20 rounded-2xl overflow-hidden bg-white dark:bg-slate-800 border border-slate-200 shadow flex items-center justify-center cursor-pointer" onclick="document.getElementById('fGambarFile').click()">
+              <img id="imagePreview" src="https://cdn-icons-png.flaticon.com/512/3024/3024520.png" alt="Preview" class="w-full h-full object-contain p-2">
+              <button type="button" id="btnRemoveImage" onclick="event.stopPropagation();clearUploadedImage()" class="absolute top-0.5 right-0.5 p-1 bg-red-500 text-white rounded-lg hidden"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+            </div>
+            <label class="cursor-pointer inline-flex items-center gap-1.5 px-4 py-1.5 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-200 font-700 text-[11px] rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-emerald-50 dark:hover:bg-slate-700 transition-all">
+              <i data-lucide="camera" class="w-3.5 h-3.5 text-emerald-500"></i>Ambil / Upload Foto
+              <input type="file" id="fGambarFile" accept="image/*" onchange="handleImageUpload(event)" class="hidden">
+            </label>
+            <input type="hidden" id="fGambarBase64">
+          </div>
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div><label class="field-label">Nama Anak *</label><input type="text" id="fAnak" required placeholder="mis: Budi" class="field-input"></div>
+            <div><label class="field-label">Nama Obat *</label><input type="text" id="fObat" required placeholder="mis: Sanmol" class="field-input"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div><label class="field-label">Kategori</label><select id="fKategori" class="field-input cursor-pointer"></select></div>
+            <div><label class="field-label">Kegunaan *</label><input type="text" id="fKegunaan" required placeholder="mis: Pereda demam" class="field-input"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div><label class="field-label">Dosis</label><input type="text" id="fDosis" placeholder="mis: 5 ml" class="field-input"></div>
+            <div><label class="field-label">Aturan Pakai</label><input type="text" id="fAturan" placeholder="mis: 3x Sehari" class="field-input"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div><label class="field-label">Tgl Expired</label><input type="date" id="fExpired" class="field-input"></div>
+            <div><label class="field-label">Sisa Stok</label><input type="text" id="fStok" placeholder="mis: 1 Botol" class="field-input"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div><label class="field-label">Status</label>
+              <select id="fStatusPakai" class="field-input cursor-pointer">
+                <option value="Sedang Aktif">Sedang Aktif</option>
+                <option value="Disimpan">Disimpan</option>
+                <option value="Habis">Habis</option>
+              </select>
+            </div>
+            <div><label class="field-label">Lokasi Simpan</label>
+              <select id="fLokasi" class="field-input cursor-pointer">
+                <option value="Kotak Obat Utama">Kotak Obat</option>
+                <option value="Kulkas">Kulkas</option>
+                <option value="Tas Bepergian">Tas Bepergian</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
+            </div>
+          </div>
+          <label class="flex items-center gap-2 cursor-pointer p-3 bg-purple-50 dark:bg-purple-900/15 rounded-2xl border border-purple-100 dark:border-purple-800/30">
+            <input type="checkbox" id="fPernahDicoba" class="sr-only peer">
+            <div class="w-9 h-5 bg-slate-200 rounded-full relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-4 after:h-4 after:bg-white after:rounded-full after:transition-all after:shadow peer-checked:bg-emerald-500 peer-checked:after:translate-x-4"></div>
+            <span class="text-xs font-800 text-slate-700 dark:text-slate-300">✅ Sudah dicoba &amp; cocok untuk anak ini</span>
+          </label>
+        </form>
+      </div>
+      <div class="px-5 py-3 md:py-4 border-t border-slate-100/80 dark:border-slate-800/80 flex justify-end gap-2 bg-slate-50/80 dark:bg-slate-900/50 shrink-0 pb-6 md:pb-4">
+        <button onclick="closeModal()" class="px-4 py-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 text-xs font-700 transition-all">Batal</button>
+        <button onclick="submitData()" id="btnSubmit" class="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-xl text-xs font-900 shadow-md flex items-center gap-1.5 transition-all">
+          <i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan Obat
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+// ── Constants ──
+const DEFAULT_OBAT_IMG = "https://cdn-icons-png.flaticon.com/512/3024/3024520.png";
+let chartInstance = null;
+
+// ── Global State ──
+const State = {
+  data: [], categories: ["Demam & Nyeri","Batuk & Pilek","Vitamin & Suplemen","Pencernaan","Lainnya"],
+  isLoading: true, viewMode: 'grid', activeQuickFilter: 'all',
+  appName: 'ZynHealth', appLogo: '',
+  appPinFather: '1111', appPinMother: '2222',
+  usePin: true, customApiKey: '', aiProvider: 'gemini',
+  isUnlocked: false, currentPinInput: '', currentUserRole: '',
+  notes: [], selectedNoteColor: 'emerald', editingNoteId: null
+};
+
+const DemoData = [
+  {id:"D1","Nama Anak":"Budi","Nama Obat":"Sanmol Sirup","Kategori":"Demam & Nyeri","Dosis":"5ml","Aturan Pakai":"3x Sehari","Tgl Expired":"2027-12-01","Sisa Stok":"1 Botol","Status Pakai":"Sedang Aktif","Lokasi":"Kotak Obat Utama","Pernah Dicoba":"Cocok","Kegunaan":"Pereda Demam","Gambar":""},
+  {id:"D2","Nama Anak":"Siti","Nama Obat":"Imboost Kids","Kategori":"Vitamin & Suplemen","Dosis":"5ml","Aturan Pakai":"1x Sehari","Tgl Expired":"2024-10-15","Sisa Stok":"1 Botol","Status Pakai":"Disimpan","Lokasi":"Kulkas","Pernah Dicoba":"Cocok","Kegunaan":"Vitamin C & Imun","Gambar":""}
+];
+
+// ── Badge Helpers ──
+function getStatusBadgeHTML(s){
+  const m={"Sedang Aktif":"bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300","Disimpan":"bg-slate-100 text-slate-600 dark:bg-slate-700/60 dark:text-slate-300","Habis":"bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"};
+  const ic={"Sedang Aktif":"activity","Disimpan":"archive","Habis":"x-circle"};
+  const c=m[s]||m["Disimpan"];return`<span class="badge ${c}"><i data-lucide="${ic[s]||'archive'}" class="w-2.5 h-2.5"></i> ${s||'Disimpan'}</span>`;
+}
+function getExpStatusHTML(d){
+  if(!d)return'<span class="text-[9px] text-slate-400 font-600">—</span>';
+  const diff=Math.ceil((new Date(d)-new Date())/86400000);
+  if(diff<0)return'<span class="badge bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">⛔ Kadaluarsa</span>';
+  if(diff<=30)return`<span class="badge bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">🔴 ${diff}hr lagi</span>`;
+  if(diff<=90)return`<span class="badge bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400">⚠️ ${diff} hari</span>`;
+  return`<span class="text-[9px] text-slate-500 dark:text-slate-400 font-700">${new Date(d).toLocaleDateString('id-ID',{month:'short',year:'numeric'})}</span>`;
+}
+function getCocokBadgeHTML(t){
+  if(t==="Cocok"||t===true)return'<span class="badge bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"><i data-lucide="heart" class="w-2.5 h-2.5"></i> Cocok</span>';
+  return'';
+}
+
+// ── Theme ──
+function toggleDarkMode(){
+  document.documentElement.classList.toggle('dark');
+  document.documentElement.classList.toggle('light');
+  localStorage.setItem('theme',document.documentElement.classList.contains('dark')?'dark':'light');
+  if(!State.isLoading)updateDashboard();
+}
+
+// ── Toast ──
+function showToast(msg,type="success"){
+  const d=document.documentElement.classList.contains('dark');
+  Swal.mixin({toast:true,position:'top-end',showConfirmButton:false,timer:3000,
+    background:d?'#1e293b':'#fff',color:d?'#e2e8f0':'#1e293b',
+    customClass:{popup:'rounded-2xl shadow-xl text-sm font-700'}
+  }).fire({icon:type,title:msg});
+}
+
+// ── Greeting ──
+function updateDynamicGreeting(){
+  const hr=new Date().getHours();
+  let g=hr<11?"Selamat Pagi ☀️":hr<15?"Selamat Siang 🌤️":hr<19?"Selamat Sore ⛅":"Selamat Malam 🌙";
+  const r=State.currentUserRole?` ${State.currentUserRole}`:" Ayah/Bunda";
+  const el=document.getElementById('navGreeting');
+  if(el)el.textContent=`${g}, ${r}!`;
+  const av=document.getElementById('sidebarRoleAvatar');
+  const nm=document.getElementById('sidebarRoleName');
+  if(av)av.textContent=State.currentUserRole?State.currentUserRole[0]:'P';
+  if(nm)nm.textContent=State.currentUserRole?`Login sebagai ${State.currentUserRole}`:'ZynHealth';
+}
+
+// ── Apply Config ──
+function applyAppConfig(){
+  document.title=State.appName+' | ZynHealth';
+  const el=id=>document.getElementById(id);
+  if(el('appBrandName'))el('appBrandName').textContent=State.appName;
+  if(el('loginAppName'))el('loginAppName').textContent=State.appName;
+  if(el('cfgAppName'))el('cfgAppName').value=State.appName;
+  if(el('printAppTitle'))el('printAppTitle').textContent=State.appName.toUpperCase()+' REPORT';
+  if(el('cfgAppPINFather'))el('cfgAppPINFather').value=State.appPinFather;
+  if(el('cfgAppPINMother'))el('cfgAppPINMother').value=State.appPinMother;
+  if(el('cfgLogoBase64'))el('cfgLogoBase64').value=State.appLogo;
+  if(el('cfgApiKey'))el('cfgApiKey').value=State.customApiKey;
+  if(el('cfgAiProvider'))el('cfgAiProvider').value=State.aiProvider||'gemini';
+  const btn=el('cfgUsePIN');
+  if(btn){
+    const sp=btn.querySelector('span'),sec=el('pinConfigSection');
+    if(State.usePin){btn.classList.replace('bg-slate-300','bg-emerald-500');if(sp)sp.classList.replace('translate-x-1','translate-x-5');if(sec)sec.classList.remove('hidden');}
+    else{btn.classList.replace('bg-emerald-500','bg-slate-300');if(sp)sp.classList.replace('translate-x-5','translate-x-1');if(sec)sec.classList.add('hidden');}
+  }
+  if(State.appLogo){
+    if(el('cfgLogoPreview'))el('cfgLogoPreview').src=State.appLogo;
+    if(el('brandLogoWrap')){el('brandLogoWrap').innerHTML=`<img src="${State.appLogo}" class="w-8 h-8 object-contain">`;el('brandLogoWrap').className="w-10 h-10 rounded-xl overflow-hidden bg-white flex items-center justify-center p-1 shadow border border-slate-200";}
+    if(el('loginLogoWrap')){el('loginLogoWrap').innerHTML=`<img src="${State.appLogo}" class="w-16 h-16 object-contain">`;el('loginLogoWrap').className="w-24 h-24 rounded-2xl overflow-hidden bg-white flex items-center justify-center p-2 shadow-xl mb-4 border border-slate-100";}
+  }
+  lucide.createIcons();
+}
+
+// ── Auth ──
+function checkAuthRequirement(){
+  const ls=document.getElementById('loginScreen');
+  if(!ls)return;
+  if(State.usePin&&!State.isUnlocked){ls.classList.remove('hidden','opacity-0');}
+  else{ls.classList.add('opacity-0');setTimeout(()=>ls.classList.add('hidden'),400);}
+}
+
+// ✅ FIX: Compares BOTH father and mother PIN correctly
+function pressPin(num){
+  if(State.currentPinInput.length>=4)return;
+  State.currentPinInput+=num;
+  updatePinDots();
+  if(State.currentPinInput.length===4){
+    setTimeout(()=>{
+      const inp=State.currentPinInput;
+      const f=String(State.appPinFather).trim();
+      const m=String(State.appPinMother).trim();
+      if(inp===f){State.currentUserRole="Ayah";authorizeLogin();}
+      else if(inp===m){State.currentUserRole="Bunda";authorizeLogin();}
+      else{showToast("PIN salah! Coba lagi.","error");shakePinDots();clearPin();}
+    },150);
+  }
+}
+function authorizeLogin(){
+  State.isUnlocked=true;updateDynamicGreeting();
+  showToast(`Selamat datang, ${State.currentUserRole}! 👋`,"success");
+  checkAuthRequirement();clearPin();
+}
+function updatePinDots(){
+  for(let i=1;i<=4;i++){
+    const d=document.getElementById(`dot-${i}`);if(!d)continue;
+    d.className=i<=State.currentPinInput.length
+      ?"w-4 h-4 rounded-full bg-emerald-500 border-2 border-emerald-500 scale-110 transition-all duration-200"
+      :"w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 transition-all duration-200";
+  }
+}
+function clearPin(){State.currentPinInput='';updatePinDots();}
+function deleteLastPin(){if(State.currentPinInput.length>0){State.currentPinInput=State.currentPinInput.slice(0,-1);updatePinDots();}}
+function shakePinDots(){
+  const r=document.getElementById('pinDotRow');
+  if(r){r.classList.add('animate-bounce');setTimeout(()=>r.classList.remove('animate-bounce'),600);}
+}
+function lockApp(){State.isUnlocked=false;State.currentUserRole='';clearPin();checkAuthRequirement();}
+
+// ── Sidebar ──
+function toggleSidebar(){
+  const sb=document.getElementById('mainSidebar'),ov=document.getElementById('sidebarOverlay');
+  if(!sb||!ov)return;
+  if(sb.classList.contains('-translate-x-full')){
+    sb.classList.remove('-translate-x-full');ov.classList.remove('hidden');setTimeout(()=>ov.classList.remove('opacity-0'),10);
+  }else{
+    sb.classList.add('-translate-x-full');ov.classList.add('opacity-0');setTimeout(()=>ov.classList.add('hidden'),300);
+  }
+}
+
+// ── Nav ──
+function switchTab(tabId){
+  if(window.innerWidth<768){const sb=document.getElementById('mainSidebar');if(sb&&!sb.classList.contains('-translate-x-full'))toggleSidebar();}
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('nav-active'));
+  const sel=document.getElementById('menu-'+tabId);if(sel)sel.classList.add('nav-active');
+  ['dashboard','list','catalog','kalkulator','chatai','settings'].forEach(id=>{
+    const v=document.getElementById('view-'+id);if(v)v.classList.add('hidden');
+  });
+  const cur=document.getElementById('view-'+tabId);
+  if(cur){cur.classList.remove('hidden');cur.classList.add('fade-up');setTimeout(()=>cur.classList.remove('fade-up'),600);}
+  if(tabId==='dashboard')updateDashboard();
+}
+
+// ── Data Loader ──
+function fetchObatData(){
+  if(typeof google!=='undefined'){
+    google.script.run.withSuccessHandler(res=>{State.data=res||[];processData();}).withFailureHandler(()=>{State.data=DemoData;processData();}).getObatData();
+  }else{
+    const m=localStorage.getItem('zynhealth_local_db');
+    State.data=m?JSON.parse(m):DemoData;processData();
+  }
+}
+function processData(){State.isLoading=false;renderTable();updateDashboard();checkExpiryAlerts();}
+
+// ── Dashboard ──
+function updateDashboard(){
+  if(State.isLoading)return;
+  let expCount=0,aktifCount=0,cocokCount=0,katMap={};
+  State.data.forEach(d=>{
+    if(d["Tgl Expired"]&&Math.ceil((new Date(d["Tgl Expired"])-new Date())/86400000)<=90)expCount++;
+    if(d["Status Pakai"]==="Sedang Aktif")aktifCount++;
+    if(d["Pernah Dicoba"]==="Cocok"||d["Pernah Dicoba"]===true)cocokCount++;
+    const k=d["Kategori"]||"Lainnya";katMap[k]=(katMap[k]||0)+1;
+  });
+  animateCount(document.getElementById('statTotalObat'),State.data.length);
+  animateCount(document.getElementById('statExpired'),expCount);
+  animateCount(document.getElementById('statSeringDipakai'),aktifCount);
+  animateCount(document.getElementById('statPernahCoba'),cocokCount);
+  renderChart(katMap);
+}
+function animateCount(el,target){
+  if(!el)return;let start=0;const dur=700;
+  const step=(ts)=>{if(!step.t)step.t=ts;const p=Math.min((ts-step.t)/dur,1);el.textContent=Math.floor(p*target);if(p<1)requestAnimationFrame(step);};
+  requestAnimationFrame(step);
+}
+function checkExpiryAlerts(){
+  const items=State.data.filter(d=>{if(!d["Tgl Expired"])return false;return Math.ceil((new Date(d["Tgl Expired"])-new Date())/86400000)<=90;});
+  const btn=document.getElementById('alertBadgeBtn'),cnt=document.getElementById('alertBadgeCount');
+  const banner=document.getElementById('expiryAlertBanner'),txt=document.getElementById('expiryAlertText');
+  if(items.length>0){
+    if(btn)btn.classList.remove('hidden');if(cnt)cnt.textContent=items.length;
+    if(banner)banner.classList.remove('hidden');
+    if(txt){const n=items.slice(0,3).map(d=>d["Nama Obat"]).join(', ');txt.textContent=`${items.length} obat akan kadaluarsa: ${n}${items.length>3?', dll.':'.'}`;}
+  }else{if(btn)btn.classList.add('hidden');if(banner)banner.classList.add('hidden');}
+}
+
+// ── Chart ──
+function renderChart(dataMap){
+  const canvas=document.getElementById('categoryChart');if(!canvas)return;
+  const isDark=document.documentElement.classList.contains('dark');
+  if(chartInstance)chartInstance.destroy();
+  const colors=['#10b981','#06b6d4','#8b5cf6','#f59e0b','#ef4444','#ec4899'];
+  if(!Object.keys(dataMap).length)dataMap={"Belum ada data":1};
+  chartInstance=new Chart(canvas.getContext('2d'),{type:'doughnut',data:{labels:Object.keys(dataMap),datasets:[{data:Object.values(dataMap),backgroundColor:colors,borderWidth:0}]},options:{responsive:true,cutout:'75%',plugins:{legend:{display:false}}}});
+  const legend=document.getElementById('chartLegend');
+  if(legend){
+    const labels=Object.keys(dataMap),vals=Object.values(dataMap),total=vals.reduce((a,b)=>a+b,0);
+    legend.innerHTML=labels.map((l,i)=>`<div class="flex items-center justify-between gap-2 py-1.5"><div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${colors[i%colors.length]}"></span><span class="text-[10px] md:text-xs font-700 text-slate-600 dark:text-slate-300 truncate max-w-[120px]">${l}</span></div><span class="text-[10px] font-900 text-slate-400 shrink-0">${vals[i]} (${Math.round(vals[i]/total*100)}%)</span></div>`).join('');
+  }
+}
+
+// ── Category Manager ──
+function updateKategoriOptions(){
+  const f1=document.getElementById('filterKategori'),f2=document.getElementById('fKategori');
+  if(!f1||!f2)return;const v=f1.value;
+  f1.innerHTML='<option value="All">Semua Kategori</option>';f2.innerHTML='';
+  State.categories.forEach(c=>{f1.innerHTML+=`<option value="${c}">${c}</option>`;f2.innerHTML+=`<option value="${c}">${c}</option>`;});
+  f1.value=v||'All';renderCatalogList();
+}
+function renderCatalogList(){
+  const list=document.getElementById('catalogList');if(!list)return;
+  if(!State.categories.length){list.innerHTML='<p class="text-xs text-slate-400 text-center py-4 font-600">Belum ada kategori.</p>';return;}
+  list.innerHTML=State.categories.map((cat,i)=>`<li class="flex items-center justify-between p-3 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 rounded-2xl shadow-sm group"><span class="text-sm font-700 text-slate-700 dark:text-slate-200">${cat}</span><div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-all"><button onclick="editCategory(${i})" class="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-xl"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button><button onclick="deleteCategory(${i})" class="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-slate-700 rounded-xl"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></div></li>`).join('');
+  lucide.createIcons();
+}
+function addNewCategory(){
+  const inp=document.getElementById('newCategoryInput'),val=inp.value.trim();
+  if(!val)return showToast("Masukkan nama kategori!","warning");
+  if(State.categories.includes(val))return showToast("Kategori sudah ada!","warning");
+  State.categories.push(val);inp.value='';updateKategoriOptions();saveCategoriesToBackend();showToast("Kategori ditambahkan!");
+}
+function editCategory(i){
+  Swal.fire({title:'Edit Kategori',input:'text',inputValue:State.categories[i],showCancelButton:true,confirmButtonText:'Simpan',customClass:{popup:'rounded-2xl',confirmButton:'rounded-xl bg-emerald-500 border-0',cancelButton:'rounded-xl'}})
+  .then(r=>{if(r.isConfirmed&&r.value.trim()){State.categories[i]=r.value.trim();updateKategoriOptions();saveCategoriesToBackend();showToast("Kategori diperbarui!");}});
+}
+function deleteCategory(i){
+  Swal.fire({title:'Hapus kategori?',icon:'warning',showCancelButton:true,confirmButtonColor:'#ef4444',confirmButtonText:'Hapus',customClass:{popup:'rounded-2xl',confirmButton:'rounded-xl',cancelButton:'rounded-xl'}})
+  .then(r=>{if(r.isConfirmed){State.categories.splice(i,1);updateKategoriOptions();saveCategoriesToBackend();showToast("Kategori dihapus!");}});
+}
+function saveCategoriesToBackend(){if(typeof google!=='undefined')google.script.run.saveCategories(State.categories);}
+
+// ── Notes System ──
+const NOTE_COLORS={
+  emerald:{bg:'bg-emerald-50 dark:bg-emerald-900/15',border:'border-emerald-100 dark:border-emerald-800/30',dot:'bg-emerald-400',text:'text-emerald-700 dark:text-emerald-300'},
+  sky:{bg:'bg-sky-50 dark:bg-sky-900/15',border:'border-sky-100 dark:border-sky-800/30',dot:'bg-sky-400',text:'text-sky-700 dark:text-sky-300'},
+  violet:{bg:'bg-violet-50 dark:bg-violet-900/15',border:'border-violet-100 dark:border-violet-800/30',dot:'bg-violet-400',text:'text-violet-700 dark:text-violet-300'},
+  rose:{bg:'bg-rose-50 dark:bg-rose-900/15',border:'border-rose-100 dark:border-rose-800/30',dot:'bg-rose-400',text:'text-rose-700 dark:text-rose-300'},
+  amber:{bg:'bg-amber-50 dark:bg-amber-900/15',border:'border-amber-100 dark:border-amber-800/30',dot:'bg-amber-400',text:'text-amber-700 dark:text-amber-300'}
+};
+function selectNoteColor(color){
+  State.selectedNoteColor=color;
+  document.querySelectorAll('.note-color-btn').forEach(b=>{
+    b.style.outline=b.dataset.color===color?'2px solid #10b981':'none';
+    b.style.outlineOffset=b.dataset.color===color?'2px':'0';
+  });
+}
+function saveNote(){
+  const title=document.getElementById('noteTitleInput').value.trim();
+  const content=document.getElementById('noteContentInput').value.trim();
+  if(!content)return showToast("Isi catatan tidak boleh kosong!","warning");
+  if(State.editingNoteId){
+    const note=State.notes.find(n=>n.id===State.editingNoteId);
+    if(note){note.title=title;note.content=content;note.color=State.selectedNoteColor;}
+    State.editingNoteId=null;
+  }else{
+    State.notes.unshift({id:'note-'+Date.now(),title:title||'Catatan',content,color:State.selectedNoteColor,createdAt:new Date().toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})});
+  }
+  document.getElementById('noteTitleInput').value='';
+  document.getElementById('noteContentInput').value='';
+  localStorage.setItem('zynhealth_notes',JSON.stringify(State.notes));
+  renderNotes();showToast("Catatan disimpan!");
+}
+function editNote(id){
+  const note=State.notes.find(n=>n.id===id);if(!note)return;
+  document.getElementById('noteTitleInput').value=note.title;
+  document.getElementById('noteContentInput').value=note.content;
+  State.selectedNoteColor=note.color;State.editingNoteId=id;
+  selectNoteColor(note.color);
+  document.getElementById('noteTitleInput').focus();
+  showToast("Mode edit catatan.","info");
+}
+function deleteNote(id){
+  State.notes=State.notes.filter(n=>n.id!==id);
+  localStorage.setItem('zynhealth_notes',JSON.stringify(State.notes));
+  renderNotes();showToast("Catatan dihapus!");
+}
+function renderNotes(){
+  const list=document.getElementById('notesList');if(!list)return;
+  if(!State.notes.length){list.innerHTML='<p class="text-center text-xs text-slate-400 font-600 py-6">Belum ada catatan. Tulis catatan di atas!</p>';return;}
+  list.innerHTML=State.notes.map(note=>{
+    const c=NOTE_COLORS[note.color]||NOTE_COLORS.emerald;
+    return`<div class="p-3.5 rounded-2xl border ${c.bg} ${c.border} group"><div class="flex items-start justify-between gap-2"><div class="flex items-center gap-2 flex-1 min-w-0"><span class="w-2.5 h-2.5 rounded-full ${c.dot} shrink-0 mt-0.5"></span><h5 class="text-xs font-900 ${c.text} truncate">${note.title}</h5></div><div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-all shrink-0"><button onclick="editNote('${note.id}')" class="p-1 text-slate-400 hover:text-blue-500 rounded-lg"><i data-lucide="pencil" class="w-3 h-3"></i></button><button onclick="deleteNote('${note.id}')" class="p-1 text-slate-400 hover:text-red-500 rounded-lg"><i data-lucide="trash-2" class="w-3 h-3"></i></button></div></div><p class="text-[10px] font-600 text-slate-600 dark:text-slate-300 mt-1.5 ml-4 leading-relaxed">${note.content}</p><p class="text-[9px] text-slate-400 font-600 mt-1.5 ml-4">${note.createdAt||''}</p></div>`;
+  }).join('');
+  lucide.createIcons();
+}
+function loadLocalNotes(){const s=localStorage.getItem('zynhealth_notes');if(s){try{State.notes=JSON.parse(s);}catch(e){}}}
+
+// ── Dosage Calculator ──
+const MEDICINE_DATA={
+  paracetamol:{name:"Paracetamol",unit:"mg",perKgMin:10,perKgMax:15,maxDosePerKg:1000,freqHours:"4–6 jam",info:"Dosis: 10–15 mg/kg/kali · Tiap 4–6 jam · Maks. 5x/hari · Maks. 1000 mg/kali",form:"Sirup: 120mg/5ml, 250mg/5ml | Tab: 500mg"},
+  ibuprofen:{name:"Ibuprofen",unit:"mg",perKgMin:5,perKgMax:10,maxDosePerKg:400,freqHours:"6–8 jam",info:"Dosis: 5–10 mg/kg/kali · Tiap 6–8 jam · Maks. 4x/hari · Berikan setelah makan.",form:"Sirup: 100mg/5ml | Tab: 200mg"},
+  amoxicillin:{name:"Amoxicillin",unit:"mg/hari",perKgMin:25,perKgMax:50,maxDosePerKg:2000,freqHours:"8 jam (3x/hari)",info:"Dosis harian: 25–50 mg/kg dibagi 3 dosis tiap 8 jam. HABISKAN antibiotik sesuai anjuran dokter.",form:"Sirup: 125mg/5ml, 250mg/5ml | Kaplet: 500mg"},
+  cetirizine:{name:"Cetirizine",unit:"mg",perKgMin:0.25,perKgMax:0.25,maxDosePerKg:10,freqHours:"24 jam (1x/hari)",info:"Dosis: 0.25 mg/kg/hari sekali malam hari · Maks. 10 mg/hari.",form:"Sirup: 5mg/5ml | Tab: 10mg"},
+  zinc:{name:"Zinc Sirup",unit:"mg/hari",perKgMin:10,perKgMax:20,maxDosePerKg:20,freqHours:"24 jam (1x/hari)",info:"< 6 bulan: 10 mg/hari · ≥ 6 bulan: 20 mg/hari · Durasi: 10–14 hari.",form:"Sirup: 10mg/5ml, 20mg/5ml | Tab hisap: 20mg"}
+};
+function updateCalcInfo(){
+  const med=MEDICINE_DATA[document.getElementById('calcMedicine').value];if(!med)return;
+  const ib=document.getElementById('calcInfoBox'),it=document.getElementById('calcInfoText'),cr=document.getElementById('calcResult');
+  if(ib)ib.querySelector('p:first-child').textContent='ℹ️ Info '+med.name;
+  if(it)it.textContent=med.info;if(cr)cr.classList.add('hidden');
+}
+function calculateDose(){
+  const weight=parseFloat(document.getElementById('calcWeight').value);
+  const age=document.getElementById('calcAge').value.trim();
+  if(!weight||weight<1||weight>100)return showToast("Masukkan berat badan valid (1–100 kg)!","warning");
+  const med=MEDICINE_DATA[document.getElementById('calcMedicine').value];if(!med)return;
+  const minD=Math.min(weight*med.perKgMin,med.maxDosePerKg);
+  const maxD=Math.min(weight*med.perKgMax,med.maxDosePerKg);
+  const result=document.getElementById('calcResult'),grid=document.getElementById('calcResultGrid');
+  if(!result||!grid)return;
+  const cards=[
+    {label:'Berat Badan',value:weight+' kg',color:'bg-slate-50 dark:bg-slate-800/60',tc:'text-slate-700 dark:text-slate-200'},
+    {label:'Usia',value:age||'—',color:'bg-slate-50 dark:bg-slate-800/60',tc:'text-slate-700 dark:text-slate-200'},
+    {label:'Dosis Minimum',value:minD.toFixed(1)+' '+med.unit,color:'bg-emerald-50 dark:bg-emerald-900/15',tc:'text-emerald-700 dark:text-emerald-300'},
+    {label:'Dosis Maksimum',value:maxD.toFixed(1)+' '+med.unit,color:'bg-blue-50 dark:bg-blue-900/15',tc:'text-blue-700 dark:text-blue-300'},
+    {label:'Frekuensi',value:'Tiap '+med.freqHours,color:'bg-violet-50 dark:bg-violet-900/15',tc:'text-violet-700 dark:text-violet-300'},
+    {label:'Bentuk Sediaan',value:med.form,color:'bg-amber-50 dark:bg-amber-900/15',tc:'text-amber-700 dark:text-amber-300'}
+  ];
+  grid.innerHTML=cards.map(c=>`<div class="p-3.5 ${c.color} rounded-2xl border border-white/80 dark:border-white/5"><p class="text-[10px] font-900 uppercase tracking-wide text-slate-400 mb-1">${c.label}</p><p class="text-sm font-900 ${c.tc} leading-tight">${c.value}</p></div>`).join('');
+  result.classList.remove('hidden');
+}
+
+// ── Render Table ──
+function renderTable(){
+  const container=document.getElementById('medicineContainer'),emptyState=document.getElementById('emptyState');
+  if(!container)return;
+  if(State.isLoading){showSkeletons();return;}
+  const search=(document.getElementById('searchInput')?.value||'').toLowerCase();
+  const filter=document.getElementById('filterKategori')?.value||'All';
+  let filtered=State.data.filter(item=>{
+    const ms=(item["Nama Obat"]||'').toLowerCase().includes(search)||(item["Nama Anak"]||'').toLowerCase().includes(search)||(item["Kegunaan"]||'').toLowerCase().includes(search);
+    const mf=filter==='All'||item["Kategori"]===filter;
+    let mq=true;
+    if(State.activeQuickFilter==='aktif')mq=item["Status Pakai"]==="Sedang Aktif";
+    else if(State.activeQuickFilter==='disimpan')mq=item["Status Pakai"]==="Disimpan";
+    else if(State.activeQuickFilter==='cocok')mq=item["Pernah Dicoba"]==="Cocok"||item["Pernah Dicoba"]===true;
+    else if(State.activeQuickFilter==='expired'){mq=item["Tgl Expired"]?Math.ceil((new Date(item["Tgl Expired"])-new Date())/86400000)<=90:false;}
+    return ms&&mf&&mq;
+  });
+  container.innerHTML='';
+  if(!filtered.length){if(emptyState){emptyState.classList.remove('hidden');emptyState.classList.add('flex');}return;}
+  if(emptyState){emptyState.classList.add('hidden');emptyState.classList.remove('flex');}
+  if(State.viewMode==='grid'){
+    const grid=document.createElement('div');
+    grid.className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4";
+    filtered.forEach((item,idx)=>{
+      const imgSrc=item["Gambar"]||DEFAULT_OBAT_IMG,id=item.id||item.ID;
+      const div=document.createElement('div');
+      div.className="glass rounded-2xl border border-white/60 dark:border-slate-800/60 p-4 flex flex-col justify-between card-hover fade-up bg-white/50 dark:bg-slate-900/50";
+      div.style.animationDelay=`${idx*40}ms`;
+      div.innerHTML=`<div>
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center p-1.5 cursor-zoom-in hover:scale-105 transition-transform shrink-0 shadow-sm" onclick="previewImage('${imgSrc}','${(item["Nama Obat"]||'').replace(/'/g,'&apos;')}')">
+            <img src="${imgSrc}" alt="Obat" class="w-full h-full object-contain" onerror="this.src='${DEFAULT_OBAT_IMG}'">
+          </div>
+          <div class="flex gap-0.5 bg-slate-50 dark:bg-slate-800 rounded-xl p-0.5 shrink-0 border border-slate-100 dark:border-slate-700">
+            <button onclick="editData('${id}')" class="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg transition-all"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+            <button onclick="deleteData('${id}')" class="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-slate-700 rounded-lg transition-all"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-1 mb-2">
+          <span class="badge bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400">${item["Nama Anak"]||'—'}</span>
+          ${getStatusBadgeHTML(item["Status Pakai"])}
+        </div>
+        <h4 class="font-900 text-sm text-slate-800 dark:text-white mb-0.5 leading-snug truncate">${item["Nama Obat"]||'—'}</h4>
+        <p class="text-[10px] font-700 text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">${item["Kegunaan"]||'—'}</p>
+        <div class="border-t border-slate-100 dark:border-slate-800 mt-2.5 pt-2.5 space-y-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+          <p class="flex items-center gap-1.5 truncate"><i data-lucide="timer" class="w-3 h-3 shrink-0 text-slate-400"></i>${item["Dosis"]||'—'} · ${item["Aturan Pakai"]||'—'}</p>
+          <p class="flex items-center gap-1.5 truncate"><i data-lucide="map-pin" class="w-3 h-3 shrink-0 text-slate-400"></i>${item["Lokasi"]||'—'}</p>
+        </div>
+      </div>
+      <div class="border-t border-slate-100 dark:border-slate-800 pt-2.5 mt-2 flex items-center justify-between flex-wrap gap-1">
+        ${getExpStatusHTML(item["Tgl Expired"])}${getCocokBadgeHTML(item["Pernah Dicoba"])}
+      </div>`;
+      grid.appendChild(div);
+    });
+    container.appendChild(grid);
+  }else{
+    const wrap=document.createElement('div');
+    wrap.className="glass rounded-3xl overflow-x-auto border border-white/60 dark:border-slate-800/60 bg-white/50 dark:bg-slate-900/50";
+    let rows='';
+    filtered.forEach(item=>{
+      const imgSrc=item["Gambar"]||DEFAULT_OBAT_IMG,id=item.id||item.ID;
+      rows+=`<tr class="hover:bg-emerald-50/30 dark:hover:bg-slate-800/30 transition-colors text-[10px] md:text-xs border-b border-slate-100 dark:border-slate-800/50 last:border-0">
+        <td class="py-3 px-4 min-w-[160px]"><div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center p-1 cursor-zoom-in shrink-0" onclick="previewImage('${imgSrc}','${(item["Nama Obat"]||'').replace(/'/g,'&apos;')}')"><img src="${imgSrc}" class="w-full h-full object-contain" onerror="this.src='${DEFAULT_OBAT_IMG}'"></div>
+          <div><span class="text-[8px] font-900 text-emerald-600 dark:text-emerald-400 uppercase">${item["Nama Anak"]||'—'}</span><h5 class="font-900 text-slate-800 dark:text-white leading-tight">${item["Nama Obat"]||'—'}</h5></div>
+        </div></td>
+        <td class="py-3 px-4 min-w-[120px]"><span class="font-700 text-slate-700 dark:text-slate-200">${item["Kegunaan"]||'—'}</span><br><span class="text-slate-400">${item["Kategori"]||'—'}</span></td>
+        <td class="py-3 px-4">${getStatusBadgeHTML(item["Status Pakai"])}<span class="text-slate-400 flex items-center gap-1 mt-1 text-[9px]"><i data-lucide="map-pin" class="w-2.5 h-2.5"></i>${item["Lokasi"]||'—'}</span></td>
+        <td class="py-3 px-4 min-w-[120px]"><strong>${item["Dosis"]||'—'}</strong> (${item["Aturan Pakai"]||'—'})<div class="mt-1">${getCocokBadgeHTML(item["Pernah Dicoba"])}</div></td>
+        <td class="py-3 px-4 min-w-[100px]">${getExpStatusHTML(item["Tgl Expired"])}</td>
+        <td class="py-3 px-4 text-right"><div class="flex justify-end gap-1">
+          <button onclick="editData('${id}')" class="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+          <button onclick="deleteData('${id}')" class="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-slate-700 rounded-lg"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+        </div></td>
+      </tr>`;
+    });
+    wrap.innerHTML=`<table class="w-full border-collapse whitespace-nowrap md:whitespace-normal"><thead><tr class="bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-[9px] uppercase tracking-widest text-slate-400 font-900"><th class="py-3 px-4">Obat & Anak</th><th class="py-3 px-4">Kegunaan</th><th class="py-3 px-4">Status</th><th class="py-3 px-4">Dosis</th><th class="py-3 px-4">Expired</th><th class="py-3 px-4 text-right">Aksi</th></tr></thead><tbody>${rows}</tbody></table>`;
+    container.appendChild(wrap);
+  }
+  lucide.createIcons();
+}
+
+function setViewMode(mode){
+  State.viewMode=mode;
+  const g=document.getElementById('btnViewGrid'),l=document.getElementById('btnViewList');
+  const activeClass="p-2 rounded-xl transition-all bg-white dark:bg-slate-700 shadow-sm text-emerald-600 dark:text-emerald-400";
+  const inactiveClass="p-2 rounded-xl transition-all text-slate-400 hover:text-slate-700 dark:hover:text-white";
+  if(mode==='grid'){if(g)g.className=activeClass;if(l)l.className=inactiveClass;}
+  else{if(l)l.className=activeClass;if(g)g.className=inactiveClass;}
+  renderTable();
+}
+function setQuickFilter(type){
+  State.activeQuickFilter=type;
+  document.querySelectorAll('.qf-btn').forEach(b=>{
+    const isExp=b.id==='qf-expired';
+    b.className=`qf-btn shrink-0 px-3.5 py-1.5 rounded-full text-[10px] font-700 transition-all bg-white dark:bg-slate-800 ${isExp?'text-orange-500':'text-slate-500 dark:text-slate-300'} border border-slate-200 dark:border-slate-700`;
+  });
+  const sel=document.getElementById('qf-'+type);
+  if(sel)sel.className=type==='expired'?'qf-btn shrink-0 px-3.5 py-1.5 rounded-full text-[10px] font-900 bg-orange-500 text-white border border-orange-500 transition-all':'qf-btn shrink-0 px-3.5 py-1.5 rounded-full text-[10px] font-900 bg-emerald-500 text-white border border-emerald-500 transition-all';
+  renderTable();
+}
+
+// ── CRUD ──
+function openModal(){
+  ['fAnak','fObat','fDosis','fAturan','fStok','fKegunaan'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const fe=document.getElementById('fExpired');if(fe)fe.value='';
+  const fgb=document.getElementById('fGambarBase64');if(fgb)fgb.value='';
+  const fid=document.getElementById('formId');if(fid)fid.value='';
+  const ip=document.getElementById('imagePreview');if(ip)ip.src=DEFAULT_OBAT_IMG;
+  const bri=document.getElementById('btnRemoveImage');if(bri)bri.classList.add('hidden');
+  const fpd=document.getElementById('fPernahDicoba');if(fpd)fpd.checked=false;
+  const mt=document.getElementById('modalTitle');if(mt)mt.textContent='Tambah Obat Baru';
+  updateKategoriOptions();
+  const modal=document.getElementById('formModal'),backdrop=document.getElementById('modalBackdrop'),content=document.getElementById('modalContent');
+  if(modal)modal.classList.remove('hidden');
+  setTimeout(()=>{
+    if(backdrop)backdrop.classList.remove('opacity-0');
+    if(content){content.classList.remove('translate-y-full','md:translate-y-0','opacity-0');content.style.transform='';content.style.opacity='1';}
+  },10);
+}
+function closeModal(){
+  const modal=document.getElementById('formModal'),backdrop=document.getElementById('modalBackdrop'),content=document.getElementById('modalContent');
+  if(backdrop)backdrop.classList.add('opacity-0');
+  if(content){content.style.opacity='0';if(window.innerWidth<768)content.style.transform='translateY(100%)';}
+  setTimeout(()=>{if(modal)modal.classList.add('hidden');},300);
+}
+function editData(id){
+  const item=State.data.find(d=>String(d.id||d.ID)===String(id));if(!item)return;
+  openModal();
+  setTimeout(()=>{
+    document.getElementById('formId').value=id;
+    document.getElementById('fAnak').value=item["Nama Anak"]||'';
+    document.getElementById('fObat').value=item["Nama Obat"]||'';
+    document.getElementById('fDosis').value=item["Dosis"]||'';
+    document.getElementById('fAturan').value=item["Aturan Pakai"]||'';
+    document.getElementById('fExpired').value=item["Tgl Expired"]||'';
+    document.getElementById('fStok').value=item["Sisa Stok"]||'';
+    document.getElementById('fKegunaan').value=item["Kegunaan"]||'';
+    const sp=document.getElementById('fStatusPakai');if(sp)sp.value=item["Status Pakai"]||'Disimpan';
+    const lk=document.getElementById('fLokasi');if(lk)lk.value=item["Lokasi"]||'Kotak Obat Utama';
+    const kt=document.getElementById('fKategori');if(kt)kt.value=item["Kategori"]||State.categories[0];
+    document.getElementById('fPernahDicoba').checked=item["Pernah Dicoba"]==="Cocok"||item["Pernah Dicoba"]===true;
+    if(item["Gambar"]){document.getElementById('imagePreview').src=item["Gambar"];document.getElementById('fGambarBase64').value=item["Gambar"];document.getElementById('btnRemoveImage').classList.remove('hidden');}
+    const mt=document.getElementById('modalTitle');if(mt)mt.textContent='Edit Data Obat';
+  },60);
+}
+function deleteData(id){
+  Swal.fire({title:'Hapus obat ini?',text:'Data tidak dapat dikembalikan.',icon:'warning',showCancelButton:true,confirmButtonColor:'#ef4444',cancelButtonColor:'#94a3b8',confirmButtonText:'Ya, Hapus!',cancelButtonText:'Batal',customClass:{popup:'rounded-3xl',confirmButton:'rounded-xl',cancelButton:'rounded-xl'}})
+  .then(r=>{
+    if(!r.isConfirmed)return;
+    if(typeof google!=='undefined'){
+      google.script.run.withSuccessHandler(res=>{State.data=State.data.filter(d=>String(d.id||d.ID)!==String(id));renderTable();updateDashboard();checkExpiryAlerts();showToast(res.message);}).deleteObat(id);
+    }else{
+      State.data=State.data.filter(d=>String(d.id||d.ID)!==String(id));
+      localStorage.setItem('zynhealth_local_db',JSON.stringify(State.data));
+      renderTable();updateDashboard();checkExpiryAlerts();showToast("Data dihapus!");
+    }
+  });
+}
+function submitData(){
+  const namaAnak=document.getElementById('fAnak').value.trim();
+  const namaObat=document.getElementById('fObat').value.trim();
+  const kegunaan=document.getElementById('fKegunaan').value.trim();
+  if(!namaAnak||!namaObat||!kegunaan)return showToast("Nama Anak, Nama Obat & Kegunaan wajib diisi!","warning");
+  const formId=document.getElementById('formId').value;
+  const dataForm={id:formId||null,namaAnak,namaObat,kategori:document.getElementById('fKategori').value,kegunaan,dosis:document.getElementById('fDosis').value.trim(),aturan:document.getElementById('fAturan').value.trim(),expired:document.getElementById('fExpired').value,stok:document.getElementById('fStok').value.trim(),catatan:'',statusPakai:document.getElementById('fStatusPakai').value,lokasi:document.getElementById('fLokasi').value,pernahDicoba:document.getElementById('fPernahDicoba').checked?"Cocok":"Belum",gambar:document.getElementById('fGambarBase64').value};
+  const btn=document.getElementById('btnSubmit');
+  if(btn){btn.disabled=true;btn.innerHTML='<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> Menyimpan...';lucide.createIcons();}
+  const resetBtn=()=>{if(btn){btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i> Simpan Obat';lucide.createIcons();}};
+  const done=(msg)=>{resetBtn();closeModal();fetchObatData();showToast(msg);};
+  if(typeof google!=='undefined'){
+    google.script.run.withSuccessHandler(r=>done(r.message||"Berhasil!")).withFailureHandler(e=>{resetBtn();showToast("Gagal: "+e.message,"error");}).saveObat(dataForm);
+  }else{
+    if(dataForm.id){
+      State.data=State.data.map(d=>String(d.id||d.ID)===String(dataForm.id)?{...d,"Nama Anak":dataForm.namaAnak,"Nama Obat":dataForm.namaObat,"Kategori":dataForm.kategori,"Dosis":dataForm.dosis,"Aturan Pakai":dataForm.aturan,"Tgl Expired":dataForm.expired,"Sisa Stok":dataForm.stok,"Status Pakai":dataForm.statusPakai,"Lokasi":dataForm.lokasi,"Pernah Dicoba":dataForm.pernahDicoba,"Kegunaan":dataForm.kegunaan,"Gambar":dataForm.gambar}:d);
+    }else{
+      const newId="MED-"+Date.now();
+      State.data.unshift({id:newId,ID:newId,"Nama Anak":dataForm.namaAnak,"Nama Obat":dataForm.namaObat,"Kategori":dataForm.kategori,"Dosis":dataForm.dosis,"Aturan Pakai":dataForm.aturan,"Tgl Expired":dataForm.expired,"Sisa Stok":dataForm.stok,"Status Pakai":dataForm.statusPakai,"Lokasi":dataForm.lokasi,"Pernah Dicoba":dataForm.pernahDicoba,"Kegunaan":dataForm.kegunaan,"Gambar":dataForm.gambar});
+    }
+    localStorage.setItem('zynhealth_local_db',JSON.stringify(State.data));
+    done(dataForm.id?"Data diperbarui!":"Obat ditambahkan!");
+  }
+}
+
+// ── Image Upload ──
+function handleImageUpload(event){
+  const file=event.target.files[0];if(!file||!file.type.startsWith('image/'))return;
+  const r=new FileReader();r.onload=function(e){
+    const img=new Image();img.onload=function(){
+      const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+      let w=img.width,h=img.height,max=500;
+      if(w>h){if(w>max){h*=max/w;w=max;}}else{if(h>max){w*=max/h;h=max;}}
+      canvas.width=w;canvas.height=h;ctx.drawImage(img,0,0,w,h);
+      const b64=canvas.toDataURL('image/jpeg',.8);
+      document.getElementById('fGambarBase64').value=b64;
+      document.getElementById('imagePreview').src=b64;
+      document.getElementById('btnRemoveImage').classList.remove('hidden');
+    };img.src=e.target.result;
+  };r.readAsDataURL(file);
+}
+function clearUploadedImage(){
+  document.getElementById('fGambarBase64').value='';
+  document.getElementById('imagePreview').src=DEFAULT_OBAT_IMG;
+  document.getElementById('btnRemoveImage').classList.add('hidden');
+  document.getElementById('fGambarFile').value='';
+}
+
+// ── Image Lightbox ──
+function previewImage(src,title){
+  const modal=document.getElementById('imagePreviewModal');
+  const img=document.getElementById('lightboxImage');
+  const cap=document.getElementById('lightboxCaption');
+  if(img)img.src=src||DEFAULT_OBAT_IMG;if(cap)cap.textContent=title||'';
+  if(modal){modal.classList.remove('hidden');setTimeout(()=>modal.classList.remove('opacity-0'),10);}
+}
+function closeImagePreview(){
+  const modal=document.getElementById('imagePreviewModal');
+  if(modal){modal.classList.add('opacity-0');setTimeout(()=>modal.classList.add('hidden'),300);}
+}
+
+// ── Skeletons ──
+function showSkeletons(){
+  const c=document.getElementById('medicineContainer');if(!c)return;
+  c.innerHTML=`<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">${Array(4).fill('<div class="glass p-4 rounded-2xl space-y-3 border border-white/60 dark:border-slate-800/60"><div class="h-16 w-16 rounded-2xl skeleton"></div><div class="h-4 w-2/3 rounded-xl skeleton"></div><div class="h-10 w-full rounded-xl skeleton"></div><div class="h-4 w-1/2 rounded-xl skeleton"></div></div>').join('')}</div>`;
+}
+
+// ── AI Chat ──
+function handleChatKeyDown(e){if(e.key==='Enter')sendMessage();}
+function sendQuickPrompt(t){document.getElementById('chatInput').value=t;sendMessage();}
+function handleChatImageUpload(event){
+  const file=event.target.files[0];if(!file||!file.type.startsWith('image/'))return showToast("File harus berupa gambar!","error");
+  const r=new FileReader();r.onload=function(e){
+    const img=new Image();img.onload=function(){
+      const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+      let w=img.width,h=img.height,max=500;
+      if(w>h){if(w>max){h*=max/w;w=max;}}else{if(h>max){w*=max/h;h=max;}}
+      canvas.width=w;canvas.height=h;ctx.drawImage(img,0,0,w,h);
+      const b64=canvas.toDataURL('image/jpeg',.8);
+      document.getElementById('chatImageBase64').value=b64;
+      const pi=document.getElementById('chatImagePreview'),pc=document.getElementById('chatImagePreviewContainer');
+      if(pi)pi.src=b64;if(pc)pc.classList.remove('hidden');
+      showToast("Gambar siap dianalisis!","success");
+    };img.src=e.target.result;
+  };r.readAsDataURL(file);
+}
+function clearChatImage(){
+  document.getElementById('chatImageBase64').value='';
+  document.getElementById('chatImageFile').value='';
+  const pc=document.getElementById('chatImagePreviewContainer');if(pc)pc.classList.add('hidden');
+}
+function clearChatHistory(){
+  Swal.fire({title:'Hapus Riwayat?',text:'Riwayat chat akan dihapus.',icon:'warning',showCancelButton:true,confirmButtonColor:'#ef4444',confirmButtonText:'Bersihkan!',customClass:{popup:'rounded-2xl',confirmButton:'rounded-xl',cancelButton:'rounded-xl'}})
+  .then(r=>{
+    if(r.isConfirmed){
+      const s=document.getElementById('chatMessageStream');
+      if(s){
+        s.innerHTML=`<div class="flex items-start gap-2 max-w-[88%]"><div class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white shrink-0 mt-0.5"><i data-lucide="bot" class="w-3.5 h-3.5"></i></div><div class="p-3.5 rounded-2xl rounded-tl-sm bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 shadow-sm text-[11px] leading-relaxed text-slate-700 dark:text-slate-200"><p class="font-900 text-emerald-600 dark:text-emerald-400 mb-1">Halo Ayah & Bunda! 👋</p>Saya <strong>ZynBot</strong>, asisten kesehatan anak. Tanya seputar obat, dosis, atau kesehatan anak.<br><br><span class="italic text-[9px] text-slate-400">⚠️ Jawaban bersifat edukatif, bukan pengganti diagnosis DSA.</span></div></div>`;
+        lucide.createIcons();showToast("Riwayat dibersihkan.");
+      }
+    }
+  });
+}
+function appendChatMessage(msg,role){
+  const s=document.getElementById('chatMessageStream');if(!s)return;
+  const isBot=role==='bot';
+  const wrapper=document.createElement('div');
+  wrapper.className=`flex items-start gap-2 fade-up ${isBot?'max-w-[88%]':'max-w-[88%] ml-auto flex-row-reverse'}`;
+  const avatar=document.createElement('div');
+  avatar.className=isBot?'w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white shrink-0 mt-0.5':'w-7 h-7 rounded-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center text-white shrink-0 mt-0.5';
+  avatar.innerHTML=isBot?'<i data-lucide="bot" class="w-3.5 h-3.5"></i>':'<i data-lucide="user" class="w-3.5 h-3.5"></i>';
+  const bubble=document.createElement('div');
+  bubble.className=isBot?'p-3.5 rounded-2xl rounded-tl-sm bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 shadow-sm text-[11px] md:text-xs leading-relaxed text-slate-700 dark:text-slate-200':'p-3.5 rounded-2xl rounded-tr-sm bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-sm text-[11px] md:text-xs leading-relaxed';
+  bubble.innerHTML=msg.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>');
+  wrapper.appendChild(avatar);wrapper.appendChild(bubble);
+  s.appendChild(wrapper);s.scrollTop=s.scrollHeight;
+  lucide.createIcons();
+}
+async function sendMessage(){
+  const inputEl=document.getElementById('chatInput');
+  const query=inputEl.value.trim();
+  const imageBase64=document.getElementById('chatImageBase64').value;
+  if(!query&&!imageBase64)return;
+  inputEl.value='';
+  let userMsg=query;
+  if(imageBase64)userMsg=`<img src="${imageBase64}" class="max-w-[100px] rounded-lg mb-1 border border-white/20"><br>${query||'Tolong jelaskan gambar ini.'}`;
+  appendChatMessage(userMsg,'user');clearChatImage();
+  const ind=document.getElementById('chatTypingIndicator');if(ind)ind.classList.remove('hidden');
+  try{
+    const res=await callAIAPI(query||'Bantu bacakan dan jelaskan gambar di atas.',imageBase64);
+    if(ind)ind.classList.add('hidden');appendChatMessage(res,'bot');
+  }catch(e){
+    if(ind)ind.classList.add('hidden');
+    appendChatMessage("⚠️ ZynBot tidak dapat terhubung saat ini.\n\n**Tips sementara:** Pastikan anak beristirahat cukup, berikan cairan hangat, dan kompres jika demam. Hubungi DSA jika kondisi darurat.\n\n*Periksa API Key di menu Pengaturan.*","bot");
+  }
+}
+async function callAIAPI(query,base64ImageJpeg){
+  const finalApiKey=State.customApiKey||"";
+  if(!finalApiKey)throw new Error("API Key tidak ditemukan.");
+  const provider=State.aiProvider||'gemini';
+  const sys="Anda ZynBot, asisten kesehatan keluarga untuk obat anak & kesehatan bayi dari aplikasi ZynHealth. Jawab ramah (Ayah/Bunda), aman, sopan, bersih. Jika label diunggah, bacakan kandungannya. Selalu sarankan periksa ke Dokter Spesialis Anak (DSA) untuk gejala berat.";
+  let url='',payload={},headers={"Content-Type":"application/json"};
+  if(provider==='gemini'){
+    url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${finalApiKey}`;
+    const parts=[{text:query}];
+    if(base64ImageJpeg)parts.push({inlineData:{mimeType:"image/jpeg",data:base64ImageJpeg.split(',')[1]}});
+    payload={contents:[{parts}],systemInstruction:{parts:[{text:sys}]}};
+  }else if(provider==='openai'){
+    url='https://api.openai.com/v1/chat/completions';
+    const uc=[{type:"text",text:query}];
+    if(base64ImageJpeg)uc.push({type:"image_url",image_url:{url:base64ImageJpeg}});
+    payload={model:"gpt-4o-mini",messages:[{role:"system",content:sys},{role:"user",content:uc}]};
+    headers["Authorization"]=`Bearer ${finalApiKey}`;
+  }else if(provider==='claude'){
+    url='https://api.anthropic.com/v1/messages';
+    const cl=[{type:"text",text:query}];
+    if(base64ImageJpeg)cl.push({type:"image",source:{type:"base64",media_type:"image/jpeg",data:base64ImageJpeg.split(',')[1]}});
+    payload={model:"claude-3-5-haiku-20241022",system:sys,messages:[{role:"user",content:cl}],max_tokens:1000};
+    headers["x-api-key"]=finalApiKey;headers["anthropic-version"]="2023-06-01";
+  }else if(provider==='deepseek'){
+    url='https://api.deepseek.com/v1/chat/completions';
+    payload={model:"deepseek-chat",messages:[{role:"system",content:sys},{role:"user",content:query}]};
+    headers["Authorization"]=`Bearer ${finalApiKey}`;
+  }else if(provider==='grok'){
+    url='https://api.x.ai/v1/chat/completions';
+    payload={model:"grok-2-1212",messages:[{role:"system",content:sys},{role:"user",content:query}]};
+    headers["Authorization"]=`Bearer ${finalApiKey}`;
+  }else if(provider==='qwen'){
+    url='https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
+    payload={model:"qwen-turbo",input:{messages:[{role:"system",content:sys},{role:"user",content:query}]}};
+    headers["Authorization"]=`Bearer ${finalApiKey}`;
+  }
+  let retries=3,delay=1000;
+  while(retries>0){
+    try{
+      const res=await fetch(url,{method:"POST",headers,body:JSON.stringify(payload)});
+      if(!res.ok)throw new Error("HTTP "+res.status);
+      const data=await res.json();
+      if(provider==='gemini')return data.candidates?.[0]?.content?.parts?.[0]?.text||"Gagal mendapat respons.";
+      if(provider==='openai'||provider==='deepseek'||provider==='grok')return data.choices?.[0]?.message?.content||"Gagal mendapat respons.";
+      if(provider==='claude')return data.content?.[0]?.text||"Gagal mendapat respons.";
+      if(provider==='qwen')return data.output?.text||"Gagal mendapat respons.";
+    }catch(e){retries--;if(retries===0)throw e;await new Promise(r=>setTimeout(r,delay));delay*=2;}
+  }
+}
+
+// ── Settings Form ──
+function handleConfigLogoUpload(e){
+  const file=e.target.files[0];if(!file||!file.type.startsWith('image/'))return;
+  const r=new FileReader();r.onload=function(ev){
+    const img=new Image();img.onload=function(){
+      const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');canvas.width=120;canvas.height=120;ctx.drawImage(img,0,0,120,120);
+      const b64=canvas.toDataURL('image/jpeg',.8);
+      document.getElementById('cfgLogoBase64').value=b64;document.getElementById('cfgLogoPreview').src=b64;
+    };img.src=ev.target.result;
+  };r.readAsDataURL(file);
+}
+function toggleUsePIN(){
+  State.usePin=!State.usePin;
+  const btn=document.getElementById('cfgUsePIN'),sp=btn.querySelector('span'),sec=document.getElementById('pinConfigSection');
+  if(State.usePin){btn.classList.replace('bg-slate-300','bg-emerald-500');if(sp)sp.classList.replace('translate-x-1','translate-x-5');if(sec)sec.classList.remove('hidden');}
+  else{btn.classList.replace('bg-emerald-500','bg-slate-300');if(sp)sp.classList.replace('translate-x-5','translate-x-1');if(sec)sec.classList.add('hidden');}
+}
+function submitAppSettings(){
+  const appName=document.getElementById('cfgAppName').value.trim();
+  const pinF=document.getElementById('cfgAppPINFather').value.trim();
+  const pinM=document.getElementById('cfgAppPINMother').value.trim();
+  const apiKey=document.getElementById('cfgApiKey').value.trim();
+  const aiProvider=document.getElementById('cfgAiProvider').value;
+  if(!appName)return showToast("Nama tidak boleh kosong!","warning");
+  if(State.usePin&&(pinF.length!==4||pinM.length!==4))return showToast("PIN Ayah & Bunda wajib 4 digit!","warning");
+  localStorage.setItem('zynhealth_apikey',apiKey);localStorage.setItem('zynhealth_ai_provider',aiProvider);
+  State.customApiKey=apiKey;State.aiProvider=aiProvider;
+  const payload={appName,appPin:pinF,appPinMother:pinM,appLogo:document.getElementById('cfgLogoBase64').value,usePin:State.usePin};
+  localStorage.setItem('zynhealth_app_settings',JSON.stringify({appName,appLogo:payload.appLogo,appPinFather:pinF,appPinMother:pinM,usePin:State.usePin}));
+  if(typeof google!=='undefined'){
+    google.script.run.withSuccessHandler(r=>{State.appName=payload.appName;State.appPinFather=pinF;State.appPinMother=pinM;State.appLogo=payload.appLogo;State.usePin=payload.usePin;applyAppConfig();showToast(r.message);}).saveAppConfig(payload);
+  }else{State.appName=payload.appName;State.appPinFather=pinF;State.appPinMother=pinM;State.appLogo=payload.appLogo;State.usePin=payload.usePin;applyAppConfig();showToast("Tersimpan (Lokal)!");}
+}
+
+// ── Print ──
+function printData(){
+  const tbody=document.getElementById('printBody');if(!tbody)return;
+  tbody.innerHTML='';
+  const pd=document.getElementById('printDate');if(pd)pd.textContent="Dicetak: "+new Date().toLocaleString('id-ID');
+  State.data.forEach(item=>{
+    const imgSrc=item["Gambar"]||DEFAULT_OBAT_IMG;
+    tbody.innerHTML+=`<tr><td><img src="${imgSrc}" alt="${item["Nama Obat"]}"></td><td><p style="font-weight:bold;font-size:14px;color:black;">${item["Nama Obat"]}</p><p style="font-size:11px;color:black;">Anak: ${item["Nama Anak"]}</p><p style="font-size:10px;color:#475569;">${item["Kegunaan"]||'-'} · ${item["Kategori"]}</p></td><td><p style="font-weight:bold;font-size:12px;color:black;">${item["Dosis"]||'-'}</p><p style="font-size:10px;color:#475569;">${item["Aturan Pakai"]||'-'}</p></td><td><p style="font-size:11px;color:black;">Lokasi: ${item["Lokasi"]||'-'}</p><p style="font-size:11px;color:black;">Status: ${item["Status Pakai"]||'-'}</p><p style="font-size:11px;font-weight:bold;color:black;">Exp: ${item["Tgl Expired"]||'—'}</p></td></tr>`;
+  });
+  window.print();
+}
+
+// ── Init App ──
+function initApp(){
+  showSkeletons();
+  const ls=localStorage.getItem('zynhealth_app_settings');
+  if(ls){try{const p=JSON.parse(ls);State.appName=p.appName||State.appName;State.appLogo=p.appLogo||State.appLogo;State.appPinFather=p.appPinFather||State.appPinFather;State.appPinMother=p.appPinMother||State.appPinMother;State.usePin=p.usePin!==undefined?p.usePin:State.usePin;}catch(e){}}
+  const lk=localStorage.getItem('zynhealth_apikey');if(lk)State.customApiKey=lk;
+  const lp=localStorage.getItem('zynhealth_ai_provider');if(lp)State.aiProvider=lp;
+  if(typeof google!=='undefined'){
+    google.script.run.withSuccessHandler(config=>{
+      if(config.categories)State.categories=config.categories;
+      if(config.appName)State.appName=config.appName;
+      if(config.appLogo)State.appLogo=config.appLogo;
+      // ✅ FIX: correctly map appPinFather and appPinMother from backend
+      if(config.appPinFather)State.appPinFather=config.appPinFather;
+      if(config.appPinMother)State.appPinMother=config.appPinMother;
+      if(config.usePin!==undefined)State.usePin=config.usePin;
+      applyAppConfig();checkAuthRequirement();updateKategoriOptions();fetchObatData();
+    }).withFailureHandler(()=>{applyAppConfig();checkAuthRequirement();updateKategoriOptions();fetchObatData();}).getAppConfig();
+  }else{applyAppConfig();checkAuthRequirement();updateKategoriOptions();fetchObatData();}
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  lucide.createIcons();
+  loadLocalNotes();
+  initApp();
+  updateDynamicGreeting();
+  // Initialize note color picker
+  selectNoteColor('emerald');
+});
+</script>
+
+<!-- ══ PWA INSTALL BANNER ══ -->
+<div id="installBanner" class="hidden fixed bottom-4 left-4 right-4 z-[200] no-print">
+  <div class="glass rounded-3xl p-4 shadow-2xl shadow-emerald-500/20 border border-emerald-100 dark:border-emerald-800/40 flex items-center gap-3 max-w-sm mx-auto">
+    <img src="icons/icon-72.png" class="w-12 h-12 rounded-2xl shadow-md shrink-0" alt="ZynHealth">
+    <div class="flex-1 min-w-0">
+      <h4 class="text-sm font-900 text-slate-800 dark:text-white leading-tight">Pasang ZynHealth</h4>
+      <p class="text-[10px] text-slate-500 dark:text-slate-400 font-600 mt-0.5">Install sebagai aplikasi di HP Anda!</p>
+    </div>
+    <div class="flex gap-2 shrink-0">
+      <button onclick="document.getElementById('installBanner').classList.add('hidden')" class="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <button onclick="installPWA()" class="px-3 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-900 rounded-xl shadow-md hover:shadow-lg transition-all whitespace-nowrap">
+        📲 Install
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PWA SERVICE WORKER REGISTRATION ══ -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .then(reg => {
+        console.log('[ZynHealth] SW registered:', reg.scope);
+        // Check for updates
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              console.log('[ZynHealth] App update available!');
+            }
+          });
+        });
+      })
+      .catch(err => console.warn('[ZynHealth] SW registration failed:', err));
+  });
+}
+
+// ── PWA Install Prompt ──
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show install banner after 3 seconds if not already installed
+  setTimeout(() => {
+    if (deferredPrompt && document.getElementById('installBanner')) {
+      document.getElementById('installBanner').classList.remove('hidden');
+    }
+  }, 3000);
+});
+
+function installPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(choice => {
+    if (choice.outcome === 'accepted') {
+      console.log('[ZynHealth] PWA installed!');
+      document.getElementById('installBanner').classList.add('hidden');
+    }
+    deferredPrompt = null;
+  });
+}
+
+window.addEventListener('appinstalled', () => {
+  console.log('[ZynHealth] App installed successfully!');
+  const b = document.getElementById('installBanner');
+  if (b) b.classList.add('hidden');
+});
+</script>
+
+</body>
+</html>

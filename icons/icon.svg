@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#059669;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0d9488;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.95" />
+      <stop offset="100%" style="stop-color:#f0fdf4;stop-opacity:0.9" />
+    </linearGradient>
+    <linearGradient id="pillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#34d399;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#059669" flood-opacity="0.3"/>
+    </filter>
+    <filter id="innerGlow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background rounded square (maskable safe zone) -->
+  <rect width="512" height="512" rx="112" ry="112" fill="url(#bgGrad)"/>
+
+  <!-- Subtle pattern overlay -->
+  <circle cx="80" cy="80" r="120" fill="white" opacity="0.06"/>
+  <circle cx="432" cy="432" r="150" fill="white" opacity="0.04"/>
+  <circle cx="420" cy="80" r="80" fill="white" opacity="0.06"/>
+
+  <!-- Shield shape -->
+  <path d="M256 90 L380 140 L380 270 Q380 360 256 420 Q132 360 132 270 L132 140 Z"
+        fill="url(#shieldGrad)" filter="url(#shadow)"/>
+
+  <!-- Shield inner border -->
+  <path d="M256 108 L366 154 L366 268 Q366 348 256 402 Q146 348 146 268 L146 154 Z"
+        fill="none" stroke="#10b981" stroke-width="3" opacity="0.3"/>
+
+  <!-- Medical cross on shield -->
+  <!-- Vertical bar -->
+  <rect x="238" y="185" width="36" height="110" rx="10" ry="10" fill="url(#bgGrad)"/>
+  <!-- Horizontal bar -->
+  <rect x="201" y="222" width="110" height="36" rx="10" ry="10" fill="url(#bgGrad)"/>
+
+  <!-- Small pill decoration bottom right -->
+  <g transform="translate(340,330) rotate(-35)">
+    <rect x="-26" y="-12" width="52" height="24" rx="12" fill="#34d399" opacity="0.9"/>
+    <line x1="0" y1="-12" x2="0" y2="12" stroke="white" stroke-width="2" opacity="0.6"/>
+  </g>
+
+  <!-- Small pill decoration top left -->
+  <g transform="translate(168,175) rotate(45)">
+    <rect x="-18" y="-8" width="36" height="16" rx="8" fill="#a7f3d0" opacity="0.7"/>
+    <line x1="0" y1="-8" x2="0" y2="8" stroke="white" stroke-width="1.5" opacity="0.5"/>
+  </g>
+
+  <!-- Small star sparkle top right -->
+  <g transform="translate(370,155)" opacity="0.7">
+    <path d="M0,-10 L2,-2 L10,0 L2,2 L0,10 L-2,2 L-10,0 L-2,-2 Z" fill="white"/>
+  </g>
+
+  <!-- Small star sparkle bottom left -->
+  <g transform="translate(155,340)" opacity="0.5">
+    <path d="M0,-7 L1.5,-1.5 L7,0 L1.5,1.5 L0,7 L-1.5,1.5 L-7,0 L-1.5,-1.5 Z" fill="white"/>
+  </g>
+</svg>
