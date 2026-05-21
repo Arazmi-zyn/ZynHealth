@@ -86,6 +86,7 @@ body{font-family:'Nunito',sans-serif;background:#f0fdf9;}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
 }
 </style>
+  <script src="api.js"></script>
 </head>
 <body class="flex h-screen overflow-hidden antialiased text-slate-800 dark:text-slate-100 bg-mesh">
 
@@ -188,6 +189,11 @@ body{font-family:'Nunito',sans-serif;background:#f0fdf9;}
         <i data-lucide="bell" class="w-4 h-4 md:w-5 md:h-5"></i>
         <span id="alertBadgeCount" class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-orange-500 text-white text-[8px] font-black rounded-full flex items-center justify-center">0</span>
       </button>
+      
+      <div id="apiStatusDot" class="hidden items-center gap-1.5 px-2 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-[10px] font-700" title="Status koneksi Google Sheets">
+        <span id="apiStatusIcon" class="w-2 h-2 rounded-full bg-slate-400"></span>
+        <span id="apiStatusText" class="text-slate-500 dark:text-slate-400 hidden md:block">Sheets</span>
+      </div>
       <button onclick="lockApp()" class="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500 transition-all" title="Kunci Aplikasi"><i data-lucide="lock" class="w-4 h-4 md:w-5 md:h-5"></i></button>
       <button onclick="toggleDarkMode()" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-slate-600 dark:text-slate-300">
         <i data-lucide="sun" class="w-4 h-4 md:w-5 md:h-5 hidden dark:block"></i>
@@ -896,12 +902,15 @@ function switchTab(tabId){
 }
 
 // ── Data Loader ──
-function fetchObatData(){
-  if(typeof google!=='undefined'){
-    google.script.run.withSuccessHandler(res=>{State.data=res||[];processData();}).withFailureHandler(()=>{State.data=DemoData;processData();}).getObatData();
-  }else{
-    const m=localStorage.getItem('zynhealth_local_db');
-    State.data=m?JSON.parse(m):DemoData;processData();
+async function fetchObatData(){
+  try {
+    const res = await ZynAPI.getObatData();
+    State.data = (Array.isArray(res) && res.length > 0) ? res : DemoData;
+    processData(); updateAPIStatus(ZynAPI.isConfigured());
+  } catch(e) {
+    const local = localStorage.getItem('zynhealth_local_db');
+    State.data = local ? JSON.parse(local) : DemoData;
+    processData(); updateAPIStatus(false);
   }
 }
 function processData(){State.isLoading=false;renderTable();updateDashboard();checkExpiryAlerts();}
@@ -981,7 +990,7 @@ function deleteCategory(i){
   Swal.fire({title:'Hapus kategori?',icon:'warning',showCancelButton:true,confirmButtonColor:'#ef4444',confirmButtonText:'Hapus',customClass:{popup:'rounded-2xl',confirmButton:'rounded-xl',cancelButton:'rounded-xl'}})
   .then(r=>{if(r.isConfirmed){State.categories.splice(i,1);updateKategoriOptions();saveCategoriesToBackend();showToast("Kategori dihapus!");}});
 }
-function saveCategoriesToBackend(){if(typeof google!=='undefined')google.script.run.saveCategories(State.categories);}
+function saveCategoriesToBackend(){ ZynAPI.saveCategories(State.categories); }
 
 // ── Notes System ──
 const NOTE_COLORS={
@@ -1224,13 +1233,11 @@ function deleteData(id){
   Swal.fire({title:'Hapus obat ini?',text:'Data tidak dapat dikembalikan.',icon:'warning',showCancelButton:true,confirmButtonColor:'#ef4444',cancelButtonColor:'#94a3b8',confirmButtonText:'Ya, Hapus!',cancelButtonText:'Batal',customClass:{popup:'rounded-3xl',confirmButton:'rounded-xl',cancelButton:'rounded-xl'}})
   .then(r=>{
     if(!r.isConfirmed)return;
-    if(typeof google!=='undefined'){
-      google.script.run.withSuccessHandler(res=>{State.data=State.data.filter(d=>String(d.id||d.ID)!==String(id));renderTable();updateDashboard();checkExpiryAlerts();showToast(res.message);}).deleteObat(id);
-    }else{
+    ZynAPI.deleteObat(id).then(res=>{
       State.data=State.data.filter(d=>String(d.id||d.ID)!==String(id));
-      localStorage.setItem('zynhealth_local_db',JSON.stringify(State.data));
-      renderTable();updateDashboard();checkExpiryAlerts();showToast("Data dihapus!");
-    }
+      renderTable();updateDashboard();checkExpiryAlerts();
+      showToast(res?.message||"Data dihapus! ✅");
+    }).catch(e=>showToast("Gagal hapus: "+e.message,"error"));
   });
 }
 function submitData(){
@@ -1244,21 +1251,12 @@ function submitData(){
   if(btn){btn.disabled=true;btn.innerHTML='<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> Menyimpan...';lucide.createIcons();}
   const resetBtn=()=>{if(btn){btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i> Simpan Obat';lucide.createIcons();}};
   const done=(msg)=>{resetBtn();closeModal();fetchObatData();showToast(msg);};
-  if(typeof google!=='undefined'){
-    google.script.run.withSuccessHandler(r=>done(r.message||"Berhasil!")).withFailureHandler(e=>{resetBtn();showToast("Gagal: "+e.message,"error");}).saveObat(dataForm);
-  }else{
-    if(dataForm.id){
-      State.data=State.data.map(d=>String(d.id||d.ID)===String(dataForm.id)?{...d,"Nama Anak":dataForm.namaAnak,"Nama Obat":dataForm.namaObat,"Kategori":dataForm.kategori,"Dosis":dataForm.dosis,"Aturan Pakai":dataForm.aturan,"Tgl Expired":dataForm.expired,"Sisa Stok":dataForm.stok,"Status Pakai":dataForm.statusPakai,"Lokasi":dataForm.lokasi,"Pernah Dicoba":dataForm.pernahDicoba,"Kegunaan":dataForm.kegunaan,"Gambar":dataForm.gambar}:d);
-    }else{
-      const newId="MED-"+Date.now();
-      State.data.unshift({id:newId,ID:newId,"Nama Anak":dataForm.namaAnak,"Nama Obat":dataForm.namaObat,"Kategori":dataForm.kategori,"Dosis":dataForm.dosis,"Aturan Pakai":dataForm.aturan,"Tgl Expired":dataForm.expired,"Sisa Stok":dataForm.stok,"Status Pakai":dataForm.statusPakai,"Lokasi":dataForm.lokasi,"Pernah Dicoba":dataForm.pernahDicoba,"Kegunaan":dataForm.kegunaan,"Gambar":dataForm.gambar});
-    }
-    localStorage.setItem('zynhealth_local_db',JSON.stringify(State.data));
-    done(dataForm.id?"Data diperbarui!":"Obat ditambahkan!");
-  }
+  ZynAPI.saveObat(dataForm).then(r=>{
+    resetBtn();closeModal();
+    showToast(r?.message||"Berhasil disimpan! ✅");
+    fetchObatData();
+  }).catch(e=>{resetBtn();showToast("Gagal: "+e.message,"error");});
 }
-
-// ── Image Upload ──
 function handleImageUpload(event){
   const file=event.target.files[0];if(!file||!file.type.startsWith('image/'))return;
   const r=new FileReader();r.onload=function(e){
@@ -1448,9 +1446,11 @@ function submitAppSettings(){
   State.customApiKey=apiKey;State.aiProvider=aiProvider;
   const payload={appName,appPin:pinF,appPinMother:pinM,appLogo:document.getElementById('cfgLogoBase64').value,usePin:State.usePin};
   localStorage.setItem('zynhealth_app_settings',JSON.stringify({appName,appLogo:payload.appLogo,appPinFather:pinF,appPinMother:pinM,usePin:State.usePin}));
-  if(typeof google!=='undefined'){
-    google.script.run.withSuccessHandler(r=>{State.appName=payload.appName;State.appPinFather=pinF;State.appPinMother=pinM;State.appLogo=payload.appLogo;State.usePin=payload.usePin;applyAppConfig();showToast(r.message);}).saveAppConfig(payload);
-  }else{State.appName=payload.appName;State.appPinFather=pinF;State.appPinMother=pinM;State.appLogo=payload.appLogo;State.usePin=payload.usePin;applyAppConfig();showToast("Tersimpan (Lokal)!");}
+  ZynAPI.saveAppConfig(payload).then(r=>{
+    State.appName=payload.appName;State.appPinFather=pinF;State.appPinMother=pinM;
+    State.appLogo=payload.appLogo;State.usePin=payload.usePin;
+    applyAppConfig();showToast(r?.message||"Pengaturan tersimpan! ✅");
+  }).catch(e=>showToast("Gagal: "+e.message,"error"));
 }
 
 // ── Print ──
@@ -1472,20 +1472,46 @@ function initApp(){
   if(ls){try{const p=JSON.parse(ls);State.appName=p.appName||State.appName;State.appLogo=p.appLogo||State.appLogo;State.appPinFather=p.appPinFather||State.appPinFather;State.appPinMother=p.appPinMother||State.appPinMother;State.usePin=p.usePin!==undefined?p.usePin:State.usePin;}catch(e){}}
   const lk=localStorage.getItem('zynhealth_apikey');if(lk)State.customApiKey=lk;
   const lp=localStorage.getItem('zynhealth_ai_provider');if(lp)State.aiProvider=lp;
-  if(typeof google!=='undefined'){
-    google.script.run.withSuccessHandler(config=>{
+  ZynAPI.getAppConfig().then(config=>{
+    if(config){
       if(config.categories)State.categories=config.categories;
       if(config.appName)State.appName=config.appName;
       if(config.appLogo)State.appLogo=config.appLogo;
-      // ✅ FIX: correctly map appPinFather and appPinMother from backend
       if(config.appPinFather)State.appPinFather=config.appPinFather;
       if(config.appPinMother)State.appPinMother=config.appPinMother;
       if(config.usePin!==undefined)State.usePin=config.usePin;
-      applyAppConfig();checkAuthRequirement();updateKategoriOptions();fetchObatData();
-    }).withFailureHandler(()=>{applyAppConfig();checkAuthRequirement();updateKategoriOptions();fetchObatData();}).getAppConfig();
-  }else{applyAppConfig();checkAuthRequirement();updateKategoriOptions();fetchObatData();}
+    }
+    applyAppConfig();checkAuthRequirement();updateKategoriOptions();fetchObatData();
+    ZynAPI.checkConnection().then(s=>updateAPIStatus(s.online));
+  }).catch(()=>{
+    applyAppConfig();checkAuthRequirement();updateKategoriOptions();fetchObatData();
+    updateAPIStatus(false);
+  });
 }
 
+
+// ── API Status Indicator ──────────────────────────
+function updateAPIStatus(isOnline){
+  const dot=document.getElementById('apiStatusDot');
+  const icon=document.getElementById('apiStatusIcon');
+  const text=document.getElementById('apiStatusText');
+  if(!dot)return;
+  dot.classList.remove('hidden');dot.classList.add('flex');
+  if(isOnline){
+    if(icon)icon.className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+    if(text)text.textContent="Sheets ✅";
+    dot.title="Terhubung ke Google Sheets ✅";
+  }else{
+    if(icon)icon.className="w-2 h-2 rounded-full bg-orange-400";
+    if(text)text.textContent="Lokal";
+    dot.title="Mode Offline - data tersimpan lokal";
+  }
+}
+async function migrateDemoData(){
+  const res=await ZynAPI.migrateDemoToSheet(DemoData);
+  if(res?.status==="success"){showToast(res.message,"success");fetchObatData();}
+  else showToast("Migrasi gagal. Cek koneksi GAS.","error");
+}
 document.addEventListener('DOMContentLoaded',()=>{
   lucide.createIcons();
   loadLocalNotes();
