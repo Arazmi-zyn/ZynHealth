@@ -4,7 +4,7 @@
   "description": "Aplikasi manajemen obat keluarga: Catat Obat, Ingat Kesehatan, Jaga Keluarga. Dilengkapi AI ZynBot, kalkulator dosis, dan catatan pribadi.",
   "start_url": "./index.html",
   "scope": "./",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "portrait-primary",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
@@ -116,8 +116,7 @@
   "display_override": [
     "fullscreen",
     "standalone",
-    "minimal-ui",
-    "browser"
+    "minimal-ui"
   ],
   "launch_handler": {
     "client_mode": [
