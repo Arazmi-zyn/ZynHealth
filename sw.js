@@ -27,6 +27,8 @@ const CDN_ASSETS = [
 // ── Install Event ──────────────────────────────────
 self.addEventListener('install', event => {
   console.log('[SW] Installing ZynHealth v2.0...');
+  // Skip waiting - apply updates immediately
+  self.skipWaiting();
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then(cache => {
