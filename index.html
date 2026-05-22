@@ -3,15 +3,7 @@
 <head>
 <meta charset="UTF-8">
   <!-- ══ PWA META TAGS ══ -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="ZynHealth">
-  <meta name="theme-color" content="#10b981">
-  <meta name="msapplication-TileColor" content="#10b981">
-  <meta name="msapplication-TileImage" content="icons/icon-144.png">
-  <!-- Favicon & Apple Touch Icons -->
+  <link rel="manifest" href="manifest.json">  <!-- Favicon & Apple Touch Icons -->
   <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
@@ -21,11 +13,20 @@
   <meta property="og:description" content="Pantau & kelola obat si kecil dengan aman dan mudah.">
   <meta property="og:image" content="icons/icon-512.png">
   <meta property="og:type" content="website">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"><title>ZynHealth | Manajemen Obat Anak</title>
+  <!-- ═══ PWA FULLSCREEN META TAGS ═══ -->
+  <!-- Android fullscreen -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f0fdf9" media="(prefers-color-scheme: light)">
+  <!-- iOS fullscreen -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="mobile-web-app-capable" content="yes">
-<title>ZynHealth | Manajemen Obat Anak</title>
+  <meta name="apple-mobile-web-app-title" content="ZynHealth">
+  <!-- Windows tile -->
+  <meta name="msapplication-TileColor" content="#0d9488">
+  <meta name="msapplication-TileImage" content="icons/icon-144.png">
+  <!-- ═══════════════════════════════ -->
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
@@ -37,43 +38,35 @@ tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Nunito','san
 </script>
 <style>
 *{box-sizing:border-box;}
-body{
-  font-family:'Nunito',sans-serif;
-  background:#f0fdf9;
-  position:fixed;
-  top:0;left:0;right:0;bottom:0;
-  width:100%;
-  overflow:hidden;
-  /* Fill entire screen including under status bar */
-  height:100vh;
-  height:100dvh;
+/* ══════════════════════════════════════
+   BODY & FULLSCREEN — ZynHealth Mobile
+   ══════════════════════════════════════ */
+html {
+  height: 100%;
+  /* Prevent bounce scroll on iOS */
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
 }
-.dark body{background:#0a1628;}
-/* PWA Standalone mode */
-@media all and (display-mode:standalone){
-  body{
-    height:100vh;
-    height:100dvh;
-    /* Push content below status bar */
-    padding-top:env(safe-area-inset-top);
-  }
-  header{
-    /* Header floats under status bar */
-    padding-top:0 !important;
-  }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: #f0fdf9;
+  /* True fullscreen */
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
-/* iOS Safari fullscreen hack */
-@supports (-webkit-touch-callout: none){
-  body{ height:-webkit-fill-available; }
+.dark body { background: #0a1628; }
+/* iOS fill-available fallback */
+@supports (-webkit-touch-callout: none) {
+  body { height: -webkit-fill-available; }
+  html { height: -webkit-fill-available; }
 }
-/* Android status bar color match */
-@media screen and (max-width:768px){
-  body{
-    background-color:#0d9488; /* teal - matches theme-color */
-  }
-  .bg-mesh{
-    background:#0f172a !important; /* dark bg on mobile body */
-  }
+/* Dynamic viewport units */
+@supports (height: 100dvh) {
+  body { height: 100dvh; }
 }
 .bg-mesh{background:radial-gradient(at 20% 20%,#d1fae5 0%,transparent 50%),radial-gradient(at 80% 10%,#ccfbf1 0%,transparent 40%),radial-gradient(at 60% 80%,#ecfdf5 0%,transparent 50%),#f8fafc;}
 .dark .bg-mesh{background:radial-gradient(at 10% 20%,rgba(5,150,105,.12) 0%,transparent 50%),radial-gradient(at 80% 80%,rgba(6,182,212,.08) 0%,transparent 50%),#0a1628;}
@@ -93,12 +86,21 @@ body{
 .skeleton{background:linear-gradient(90deg,#e2e8f0 25%,#cbd5e1 50%,#e2e8f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:12px;}
 .dark .skeleton{background:linear-gradient(90deg,#1e293b 25%,#334155 50%,#1e293b 75%);background-size:200% 100%;}
 
-/* ── FULLSCREEN SAFE AREA (notch/status bar) ── */
-body {
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
+/* ── SAFE AREA INSETS ── */
+.safe-top    { padding-top: env(safe-area-inset-top, 0px); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+/* Sidebar full height */
+aside { height: 100% !important; }
+/* Main scrollable area */
+#mainContainer {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+/* Loading screen fullscreen */
+#loadingScreen {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 9999;
 }
 
 /* ── LOADING SCREEN ── */
@@ -148,7 +150,46 @@ body {
 }
 
 /* ── SAFE AREA for bottom nav ── */
-.pb-safe { padding-bottom: calc(env(safe-area-inset-bottom) + 1rem); }
+.pb-safe { padding-bottom: max(1rem, calc(env(safe-area-inset-bottom) + 0.5rem)); }
+
+/* ── PWA DISPLAY MODE FULLSCREEN ── */
+@media all and (display-mode: standalone),
+       all and (display-mode: fullscreen) {
+  /* Hide browser UI completely */
+  html, body {
+    height: 100vh !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+  /* Status bar area — filled with header color */
+  body::before {
+    content: '';
+    display: block;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: env(safe-area-inset-top, 0px);
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(16px);
+    z-index: 100;
+  }
+  .dark body::before {
+    background: rgba(15,30,55,0.85);
+  }
+  /* Main content starts below status bar */
+  .sticky.top-0 {
+    top: env(safe-area-inset-top, 0px) !important;
+  }
+}
+
+/* ── iOS STANDALONE SPECIFIC ── */
+@media (max-width: 768px) {
+  /* Prevent overscroll bounce */
+  body { overscroll-behavior: none; }
+  /* Bottom padding for home indicator */
+  #mainContainer {
+    padding-bottom: max(1rem, calc(env(safe-area-inset-bottom) + 0.5rem)) !important;
+  }
+}
 
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
@@ -185,7 +226,7 @@ body {
 </style>
   <script src="api.js"></script>
 </head>
-<body class="flex antialiased text-slate-800 dark:text-slate-100 bg-mesh" style="height:100dvh;height:100vh;overflow:hidden;position:fixed;width:100%;">
+<body class="flex antialiased text-slate-800 dark:text-slate-100 bg-mesh" style="height:calc(var(--vh,1vh)*100);height:100dvh;">
 
 <!-- LOGIN SCREEN -->
 <!-- ══ LOADING SCREEN ══ -->
@@ -312,8 +353,8 @@ body {
 </aside>
 
 <!-- MAIN -->
-<main class="flex-1 flex flex-col overflow-hidden bg-transparent" style="height:100%;min-height:0;">
-  <header class="glass border-b border-white/60 dark:border-slate-800/80 px-3 md:px-8 flex justify-between items-center no-print z-10 sticky top-0 shrink-0" style="padding-top:max(0.6rem,calc(env(safe-area-inset-top) + 0.4rem));padding-bottom:0.6rem;">
+<main class="flex-1 flex flex-col overflow-hidden bg-transparent" style="min-height:0;height:100%;">
+  <header class="glass border-b border-white/60 dark:border-slate-800/80 px-3 md:px-8 flex justify-between items-center no-print z-10 sticky top-0 shrink-0" style="padding-top:max(12px, env(safe-area-inset-top, 12px));padding-bottom:10px;">
     <!-- Left: burger + greeting -->
     <div class="flex items-center gap-2 min-w-0 flex-1">
       <button onclick="toggleSidebar()" class="md:hidden p-1.5 rounded-xl hover:bg-emerald-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 shrink-0">
@@ -1717,6 +1758,19 @@ document.addEventListener('DOMContentLoaded',()=>{
   loadLocalNotes();
   updateDynamicGreeting();
   selectNoteColor('emerald');
+
+  // ── FULLSCREEN MOBILE TRICKS ──
+  // Force resize on orientation change
+  window.addEventListener('resize', () => {
+    document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+  });
+  document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+
+  // iOS Safari: lock scroll
+  document.body.addEventListener('touchmove', (e) => {
+    if (e.target === document.body) e.preventDefault();
+  }, { passive: false });
+
   // Start loading screen then init app
   startLoadingMessages();
   initApp();
