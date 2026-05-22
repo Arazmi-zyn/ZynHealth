@@ -5,9 +5,9 @@
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#f0fdfa",
-  "theme_color": "#0d9488",
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
   "lang": "id",
   "categories": [
     "health",
@@ -116,6 +116,13 @@
   "display_override": [
     "fullscreen",
     "standalone",
-    "minimal-ui"
-  ]
+    "minimal-ui",
+    "browser"
+  ],
+  "launch_handler": {
+    "client_mode": [
+      "navigate-existing",
+      "auto"
+    ]
+  }
 }
