@@ -16,10 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"><title>ZynHealth | Manajemen Obat Anak</title>
   <!-- ═══ PWA FULLSCREEN META TAGS ═══ -->
   <!-- Android fullscreen -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#f0fdf9" media="(prefers-color-scheme: light)">
-  <!-- iOS fullscreen -->
+  <meta name="mobile-web-app-capable" content="yes">  <!-- iOS fullscreen -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="ZynHealth">
@@ -184,11 +181,38 @@ aside { height: 100% !important; }
 /* ── iOS STANDALONE SPECIFIC ── */
 @media (max-width: 768px) {
   /* Prevent overscroll bounce */
-  body { overscroll-behavior: none; }
+  body { overscroll-behavior: none; -webkit-overflow-scrolling: touch; }
   /* Bottom padding for home indicator */
   #mainContainer {
     padding-bottom: max(1rem, calc(env(safe-area-inset-bottom) + 0.5rem)) !important;
   }
+}
+
+/* ── iOS: Color blend trick ── */
+/* Buat warna status bar menyatu dengan header */
+@media all and (display-mode: standalone) {
+  /* Header naik menutupi safe area = status bar terlihat menyatu */
+  header {
+    position: sticky;
+    top: 0;
+    /* Extend header background ke area status bar */
+    margin-top: calc(env(safe-area-inset-top) * -1);
+    padding-top: calc(env(safe-area-inset-top) + 10px) !important;
+    z-index: 50;
+  }
+  /* Sidebar juga extend ke atas */
+  aside {
+    padding-top: env(safe-area-inset-top);
+  }
+  /* Body tidak perlu padding top karena header menutupinya */
+  body { padding-top: 0 !important; }
+}
+
+/* ── Android fullscreen: hide status bar ── */
+@media all and (display-mode: fullscreen) {
+  /* Status bar hilang di Android */
+  body { padding-top: 0 !important; }
+  header { padding-top: 12px !important; }
 }
 
 ::-webkit-scrollbar{width:4px;height:4px;}
@@ -231,7 +255,7 @@ aside { height: 100% !important; }
 <!-- LOGIN SCREEN -->
 <!-- ══ LOADING SCREEN ══ -->
 <div id="loadingScreen" class="fixed inset-0 z-[200] flex flex-col items-center justify-center no-print"
-     style="background:linear-gradient(135deg,#0f4c35 0%,#0d9488 50%,#0e7490 100%);">
+     style="background:#0f172a;">
   <!-- Animated background blobs -->
   <div class="absolute w-64 h-64 rounded-full opacity-20 blur-3xl float-1 pointer-events-none"
        style="background:#34d399;top:-4rem;left:-4rem;"></div>
