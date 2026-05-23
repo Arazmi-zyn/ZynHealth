@@ -25,10 +25,16 @@
   <meta name="msapplication-TileImage" content="icons/icon-144.png">
   <!-- ═══════════════════════════════ -->
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/lucide@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Preconnect for faster font loading -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<!-- Critical scripts -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<!-- Defer heavy libraries - load after page visible -->
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <script>
 (function(){var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}else{document.documentElement.classList.add('light');}})();
 tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Nunito','sans-serif']},colors:{brand:{50:'#ecfdf5',100:'#d1fae5',400:'#34d399',500:'#10b981',600:'#059669',700:'#047857'}}}}}
@@ -65,23 +71,93 @@ body {
 @supports (height: 100dvh) {
   body { height: 100dvh; }
 }
-.bg-mesh{background:radial-gradient(at 20% 20%,#d1fae5 0%,transparent 50%),radial-gradient(at 80% 10%,#ccfbf1 0%,transparent 40%),radial-gradient(at 60% 80%,#ecfdf5 0%,transparent 50%),#f8fafc;}
-.dark .bg-mesh{background:radial-gradient(at 10% 20%,rgba(5,150,105,.12) 0%,transparent 50%),radial-gradient(at 80% 80%,rgba(6,182,212,.08) 0%,transparent 50%),#0a1628;}
-.glass{background:rgba(255,255,255,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.6);}
-.dark .glass{background:rgba(15,30,55,.72);border:1px solid rgba(255,255,255,.06);}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-@keyframes fadeSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-@keyframes scaleIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+/* Simple flat bg on mobile - gradients are slow */
+.bg-mesh{ background:#f0fdf9; }
+.dark .bg-mesh{ background:#0a1628; }
+/* Gradient only on desktop */
+@media(min-width:768px){
+  .bg-mesh{
+    background:
+      radial-gradient(at 20% 20%,#d1fae5 0%,transparent 50%),
+      radial-gradient(at 80% 10%,#ccfbf1 0%,transparent 40%),
+      #f8fafc;
+  }
+  .dark .bg-mesh{
+    background:
+      radial-gradient(at 10% 20%,rgba(5,150,105,.1) 0%,transparent 50%),
+      #0a1628;
+  }
+}
+.glass{
+  background:rgba(255,255,255,.95);
+  border:1px solid rgba(255,255,255,.7);
+  /* backdrop-filter only on desktop - too heavy on mobile */
+}
+.dark .glass{
+  background:rgba(15,30,55,.96);
+  border:1px solid rgba(255,255,255,.07);
+}
+/* Only use blur on powerful devices (desktop) */
+@media (min-width:768px) and (hover:hover) {
+  .glass{
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+  }
+}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
 @keyframes dotBounce{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
-.float-1{animation:float 3s ease-in-out infinite;}
-.float-2{animation:float 4s ease-in-out infinite .5s;}
-.float-3{animation:float 5s ease-in-out infinite 1s;}
-.fade-up{animation:fadeSlideUp .45s ease forwards;}
-.scale-in{animation:scaleIn .3s ease forwards;}
-.skeleton{background:linear-gradient(90deg,#e2e8f0 25%,#cbd5e1 50%,#e2e8f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:12px;}
-.dark .skeleton{background:linear-gradient(90deg,#1e293b 25%,#334155 50%,#1e293b 75%);background-size:200% 100%;}
+/* Float only on desktop, disable on mobile to save battery */
+.float-1,.float-2,.float-3{} /* disabled on mobile */
+@media(min-width:768px){
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .float-1{animation:float 3s ease-in-out infinite;}
+  .float-2{animation:float 4s ease-in-out infinite .5s;}
+  .float-3{animation:float 5s ease-in-out infinite 1s;}
+}
+.fade-up{animation:fadeSlideUp .2s ease forwards;}
+/* Disable animations when user prefers reduced motion */
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important;}
+}
+.scale-in{animation:scaleIn .2s ease forwards;}
+.skeleton{
+  background:#e2e8f0;
+  border-radius:10px;
+  /* shimmer only on desktop - simpler pulse on mobile */
+}
+.dark .skeleton{background:#1e293b;}
+@media(min-width:768px){
+  .skeleton{
+    background:linear-gradient(90deg,#e2e8f0 25%,#cbd5e1 50%,#e2e8f0 75%);
+    background-size:200% 100%;
+    animation:shimmer 1.5s infinite;
+  }
+  .dark .skeleton{
+    background:linear-gradient(90deg,#1e293b 25%,#334155 50%,#1e293b 75%);
+    background-size:200% 100%;
+  }
+}
+@media(max-width:767px){
+  .skeleton{ animation:none; opacity:.6; }
+}
+
+/* ── MOBILE PERFORMANCE: Remove expensive effects ── */
+@media (max-width: 767px) {
+  /* No box-shadow on mobile cards */
+  .glass { box-shadow: none !important; }
+  /* Faster transitions */
+  .transition-all { transition: opacity .15s ease, background-color .15s ease !important; }
+  /* No transform animations */
+  .hover\:-translate-y-1, .hover\:scale-105 { transform: none !important; }
+  /* Hero banner simpler gradient */
+  .hero-pattern { background-image: none !important; }
+  /* Reduce padding for smaller screens */
+  .rounded-3xl { border-radius: 16px !important; }
+  .rounded-2xl { border-radius: 12px !important; }
+}
 
 /* ── SAFE AREA INSETS ── */
 .safe-top    { padding-top: env(safe-area-inset-top, 0px); }
@@ -101,29 +177,14 @@ aside { height: 100% !important; }
 }
 
 /* ── LOADING SCREEN ── */
-@keyframes loadPulse {
-  0%, 100% { opacity: 0.4; transform: scale(0.95); }
-  50% { opacity: 1; transform: scale(1.05); }
-}
-@keyframes loadSpin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-@keyframes loadBar {
-  0% { width: 0%; }
-  30% { width: 45%; }
-  60% { width: 72%; }
-  85% { width: 88%; }
-  100% { width: 100%; }
-}
-@keyframes loadFadeOut {
-  0% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1.05); pointer-events: none; }
-}
-.load-logo-pulse { animation: loadPulse 1.8s ease-in-out infinite; }
-.load-spinner { animation: loadSpin 1s linear infinite; }
-.load-bar { animation: loadBar 3s ease-out forwards; }
-.load-fadeout { animation: loadFadeOut 0.6s ease-out forwards; }
+@keyframes loadPulse{0%,100%{opacity:.7}50%{opacity:1}}
+@keyframes loadSpin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+@keyframes loadBar{0%{width:0%}30%{width:45%}85%{width:88%}100%{width:100%}}
+@keyframes loadFadeOut{0%{opacity:1}100%{opacity:0}}
+.load-logo-pulse{animation:loadPulse 1.5s ease-in-out infinite;will-change:opacity;}
+.load-spinner{animation:loadSpin .8s linear infinite;will-change:transform;}
+.load-bar{animation:loadBar 2.5s ease-out forwards;will-change:width;}
+.load-fadeout{animation:loadFadeOut .4s ease-out forwards;}
 
 /* ── MOBILE FIXES ── */
 @media (max-width: 640px) {
@@ -221,10 +282,34 @@ aside { height: 100% !important; }
 .dark ::-webkit-scrollbar-thumb{background:#1e4030;}
 .hide-scroll{-ms-overflow-style:none;scrollbar-width:none;}
 .hide-scroll::-webkit-scrollbar{display:none;}
+
+/* ── GPU ACCELERATION ── */
+/* Force GPU layer for smooth scroll */
+#mainContainer {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: scroll-position;
+}
+#chatMessageStream {
+  transform: translateZ(0);
+  will-change: scroll-position;
+}
+/* Faster transition defaults */
+* { 
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+/* Buttons feel instant */
+button, a {
+  touch-action: manipulation;
+}
 .nav-active{background:linear-gradient(135deg,#d1fae5,#ccfbf1);color:#059669!important;font-weight:800;}
 .dark .nav-active{background:rgba(5,150,105,.18);color:#34d399!important;}
-.card-hover{transition:all .3s cubic-bezier(.4,0,.2,1);}
-.card-hover:hover{transform:translateY(-5px);box-shadow:0 20px 40px -10px rgba(16,185,129,.15);}
+.card-hover{transition:box-shadow .2s ease;}
+/* Hover effects only on desktop with mouse */
+@media(hover:hover){
+  .card-hover:hover{transform:translateY(-3px);box-shadow:0 12px 24px -6px rgba(16,185,129,.12);}
+}
 .badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:800;}
 .field-label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#64748b;margin-bottom:5px;}
 .dark .field-label{color:#94a3b8;}
@@ -256,11 +341,7 @@ aside { height: 100% !important; }
 <!-- ══ LOADING SCREEN ══ -->
 <div id="loadingScreen" class="fixed inset-0 z-[200] flex flex-col items-center justify-center no-print"
      style="background:#0f172a;">
-  <!-- Animated background blobs -->
-  <div class="absolute w-64 h-64 rounded-full opacity-20 blur-3xl float-1 pointer-events-none"
-       style="background:#34d399;top:-4rem;left:-4rem;"></div>
-  <div class="absolute w-48 h-48 rounded-full opacity-15 blur-3xl float-2 pointer-events-none"
-       style="background:#06b6d4;bottom:-2rem;right:-2rem;"></div>
+  <!-- Simple bg - no expensive blur blobs on mobile -->
 
   <!-- Logo -->
   <div class="load-logo-pulse mb-6 relative">
@@ -268,9 +349,7 @@ aside { height: 100% !important; }
       <img src="icons/icon-192.png" alt="ZynHealth" class="w-full h-full object-cover"
            onerror="this.parentElement.innerHTML='<div class='w-full h-full bg-white/20 flex items-center justify-center'><span style='font-size:3rem'>💊</span></div>'">
     </div>
-    <!-- Ring spinner around logo -->
-    <div class="absolute -inset-2 rounded-[2rem] border-2 border-transparent load-spinner"
-         style="border-top-color:rgba(255,255,255,0.6);border-right-color:rgba(255,255,255,0.2);"></div>
+    <!-- Simple spinner dots -->
   </div>
 
   <!-- App name -->
@@ -543,7 +622,7 @@ aside { height: 100% !important; }
     <div class="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-2">
       <div class="relative flex-1">
         <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none"></i>
-        <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Cari nama obat, kegunaan, nama anak..." class="w-full pl-10 pr-4 py-2.5 bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-600 dark:text-white placeholder:text-slate-400 transition-all focus:outline-none focus:border-emerald-400">
+        <input type="text" id="searchInput" onkeyup="debounceSearch()" placeholder="Cari nama obat, kegunaan, nama anak..." class="w-full pl-10 pr-4 py-2.5 bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-600 dark:text-white placeholder:text-slate-400 transition-all focus:outline-none focus:border-emerald-400">
       </div>
       <div class="flex items-center gap-2 flex-wrap justify-end">
         <select id="filterKategori" onchange="renderTable()" class="px-3 py-2.5 bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-700 dark:text-white outline-none cursor-pointer">
@@ -711,7 +790,9 @@ aside { height: 100% !important; }
         <h3 class="font-900 text-slate-800 dark:text-white text-xs md:text-sm">ZynBot — Asisten Kesehatan Anak</h3>
         <div class="flex items-center gap-1.5">
           <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-          <span class="text-[9px] md:text-[10px] text-slate-400 font-600">Online · Siap membantu 24/7</span>
+          <span class="text-[9px] md:text-[10px] font-600" id="chatAIStatus">
+          <span class="text-slate-400">Memeriksa API Key...</span>
+        </span>
         </div>
       </div>
       <button onclick="clearChatHistory()" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all" title="Hapus Riwayat">
@@ -813,10 +894,20 @@ aside { height: 100% !important; }
         </div>
         <div>
           <label class="field-label">API Key</label>
-          <input type="password" id="cfgApiKey" placeholder="Masukkan API Key..." class="field-input">
+          <div class="relative">
+            <input type="password" id="cfgApiKey" placeholder="Tempel API Key di sini..." class="field-input pr-10">
+            <button type="button" onclick="toggleApiKeyVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+              <i data-lucide="eye" class="w-4 h-4" id="apiKeyEyeIcon"></i>
+            </button>
+          </div>
         </div>
       </div>
-      <p class="text-[9px] text-slate-400 font-600 mt-2">Kosongkan jika pakai API bawaan gratis (Gemini).</p>
+      <div class="flex items-center justify-between mt-2 gap-2 flex-wrap">
+        <p class="text-[9px] text-slate-400 font-600">API Key gratis: <a href="https://aistudio.google.com" target="_blank" class="text-emerald-500 underline">aistudio.google.com</a></p>
+        <button type="button" onclick="testAIConnection()" class="px-3 py-1.5 bg-sky-500 hover:bg-sky-600 text-white text-[10px] font-800 rounded-xl flex items-center gap-1.5 transition-all shrink-0">
+          <i data-lucide="zap" class="w-3 h-3"></i> Test Koneksi AI
+        </button>
+      </div>
     </div>
     <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
       <h4 class="text-xs font-900 uppercase tracking-widest text-slate-400 mb-4">Keamanan PIN</h4>
@@ -995,10 +1086,29 @@ function toggleDarkMode(){
 
 // ── Toast ──
 function showToast(msg,type="success"){
+  // Use lightweight native toast first, fallback to Swal
+  if(typeof Swal==='undefined'){
+    // Lightweight fallback toast
+    const toast=document.createElement('div');
+    const colors={success:'#10b981',error:'#ef4444',warning:'#f59e0b',info:'#3b82f6'};
+    toast.style.cssText=`position:fixed;top:16px;right:16px;z-index:9999;
+      padding:10px 16px;border-radius:12px;font-size:13px;font-weight:700;
+      background:${colors[type]||colors.success};color:white;
+      box-shadow:0 4px 12px rgba(0,0,0,0.2);
+      animation:fadeSlideUp .2s ease;max-width:calc(100vw - 32px);`;
+    toast.textContent=msg;
+    document.body.appendChild(toast);
+    setTimeout(()=>{toast.style.opacity='0';toast.style.transition='opacity .3s';
+      setTimeout(()=>toast.remove(),300);},2500);
+    return;
+  }
   const d=document.documentElement.classList.contains('dark');
-  Swal.mixin({toast:true,position:'top-end',showConfirmButton:false,timer:3000,
+  Swal.mixin({
+    toast:true,position:'top-end',showConfirmButton:false,timer:2500,
     background:d?'#1e293b':'#fff',color:d?'#e2e8f0':'#1e293b',
-    customClass:{popup:'rounded-2xl shadow-xl text-sm font-700'}
+    customClass:{popup:'rounded-2xl text-sm font-700'},
+    showClass:{popup:'fadeSlideUp'},
+    hideClass:{popup:''}
   }).fire({icon:type,title:msg});
 }
 
@@ -1028,6 +1138,8 @@ function applyAppConfig(){
   if(el('cfgLogoBase64'))el('cfgLogoBase64').value=State.appLogo;
   if(el('cfgApiKey'))el('cfgApiKey').value=State.customApiKey;
   if(el('cfgAiProvider'))el('cfgAiProvider').value=State.aiProvider||'gemini';
+  if(el('cfgApiKey'))el('cfgApiKey').value=State.customApiKey||'';
+  if(el('cfgApiKey'))el('cfgApiKey').value=State.customApiKey||'';
   const btn=el('cfgUsePIN');
   if(btn){
     const sp=btn.querySelector('span'),sec=el('pinConfigSection');
@@ -1109,6 +1221,15 @@ function switchTab(tabId){
   const cur=document.getElementById('view-'+tabId);
   if(cur){cur.classList.remove('hidden');cur.classList.add('fade-up');setTimeout(()=>cur.classList.remove('fade-up'),600);}
   if(tabId==='dashboard')updateDashboard();
+  if(tabId==='chatai')updateChatAIStatus();
+  if(tabId==='settings'){
+    // Refresh settings form when opened
+    const cfgKey = document.getElementById('cfgApiKey');
+    if(cfgKey && State.customApiKey) cfgKey.value = State.customApiKey;
+    const cfgProv = document.getElementById('cfgAiProvider');
+    if(cfgProv && State.aiProvider) cfgProv.value = State.aiProvider;
+    lucide.createIcons();
+  }
 }
 
 // ── Data Loader ──
@@ -1160,11 +1281,22 @@ function checkExpiryAlerts(){
 // ── Chart ──
 function renderChart(dataMap){
   const canvas=document.getElementById('categoryChart');if(!canvas)return;
-  const isDark=document.documentElement.classList.contains('dark');
+  // Lazy: only render if Chart.js loaded and canvas visible
+  if(typeof Chart==='undefined'){
+    setTimeout(()=>renderChart(dataMap),500); return;
+  }
   if(chartInstance)chartInstance.destroy();
-  const colors=['#10b981','#06b6d4','#8b5cf6','#f59e0b','#ef4444','#ec4899'];
+  const colors=['#10b981','#06b6d4','#8b5cf6','#f59e0b','#ef4444'];
   if(!Object.keys(dataMap).length)dataMap={"Belum ada data":1};
-  chartInstance=new Chart(canvas.getContext('2d'),{type:'doughnut',data:{labels:Object.keys(dataMap),datasets:[{data:Object.values(dataMap),backgroundColor:colors,borderWidth:0}]},options:{responsive:true,cutout:'75%',plugins:{legend:{display:false}}}});
+  chartInstance=new Chart(canvas.getContext('2d'),{
+    type:'doughnut',
+    data:{labels:Object.keys(dataMap),datasets:[{data:Object.values(dataMap),backgroundColor:colors,borderWidth:0}]},
+    options:{
+      responsive:true,cutout:'75%',
+      animation:{duration:400}, // faster chart animation
+      plugins:{legend:{display:false}}
+    }
+  });
   const legend=document.getElementById('chartLegend');
   if(legend){
     const labels=Object.keys(dataMap),vals=Object.values(dataMap),total=vals.reduce((a,b)=>a+b,0);
@@ -1298,6 +1430,10 @@ function renderTable(){
   const container=document.getElementById('medicineContainer'),emptyState=document.getElementById('emptyState');
   if(!container)return;
   if(State.isLoading){showSkeletons();return;}
+  // Use rAF for smooth rendering - prevents jank
+  requestAnimationFrame(()=>_renderTableContent(container,emptyState));
+}
+function _renderTableContent(container,emptyState){
   const search=(document.getElementById('searchInput')?.value||'').toLowerCase();
   const filter=document.getElementById('filterKategori')?.value||'All';
   let filtered=State.data.filter(item=>{
@@ -1374,6 +1510,64 @@ function renderTable(){
     container.appendChild(wrap);
   }
   lucide.createIcons();
+} // end _renderTableContent
+
+// ── TOGGLE API KEY VISIBILITY ──────────────────
+function toggleApiKeyVisibility(){
+  const inp = document.getElementById('cfgApiKey');
+  const icon = document.getElementById('apiKeyEyeIcon');
+  if(!inp) return;
+  if(inp.type === 'password'){
+    inp.type = 'text';
+    if(icon) icon.setAttribute('data-lucide','eye-off');
+  } else {
+    inp.type = 'password';
+    if(icon) icon.setAttribute('data-lucide','eye');
+  }
+  lucide.createIcons();
+}
+
+// ── TEST AI CONNECTION ──────────────────────────
+async function testAIConnection(){
+  const apiKey = document.getElementById('cfgApiKey')?.value?.trim();
+  const provider = document.getElementById('cfgAiProvider')?.value || 'gemini';
+  if(!apiKey){
+    showToast("Masukkan API Key dulu!", "warning");
+    return;
+  }
+  showToast("Sedang mengetes koneksi AI...", "info");
+  // Temporarily set state for test
+  const oldKey = State.customApiKey;
+  const oldProvider = State.aiProvider;
+  State.customApiKey = apiKey;
+  State.aiProvider = provider;
+  try {
+    const res = await callAIAPI("Halo, jawab singkat: kamu siapa?", null);
+    showToast("✅ API Key valid! ZynBot siap digunakan.", "success");
+    // Save to state
+    State.customApiKey = apiKey;
+    State.aiProvider = provider;
+    localStorage.setItem('zynhealth_apikey', apiKey);
+    localStorage.setItem('zynhealth_ai_provider', provider);
+  } catch(e) {
+    State.customApiKey = oldKey;
+    State.aiProvider = oldProvider;
+    const msg = e.message||"";
+    if(msg.includes("400")||msg.includes("INVALID")){
+      showToast("❌ API Key tidak valid! Cek kembali.", "error");
+    } else if(msg.includes("429")){
+      showToast("⚠️ Rate limit. Coba lagi nanti.", "warning");
+    } else {
+      showToast("❌ Gagal: " + msg.substring(0,50), "error");
+    }
+  }
+}
+
+// Debounce search for performance
+let searchTimer=null;
+function debounceSearch(){
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(renderTable,200);
 }
 
 function setViewMode(mode){
@@ -1575,17 +1769,33 @@ async function sendMessage(){
     if(ind)ind.classList.add('hidden');appendChatMessage(res,'bot');
   }catch(e){
     if(ind)ind.classList.add('hidden');
-    appendChatMessage("⚠️ ZynBot tidak dapat terhubung saat ini.\n\n**Tips sementara:** Pastikan anak beristirahat cukup, berikan cairan hangat, dan kompres jika demam. Hubungi DSA jika kondisi darurat.\n\n*Periksa API Key di menu Pengaturan.*","bot");
+    // Show specific error
+    const errMsg = e.message||"";
+    let botErrText = "";
+    if(errMsg.includes("API Key belum diisi") || errMsg.includes("tidak ditemukan")){
+      botErrText = "🔑 **API Key belum diisi!**\n\nCara mengaktifkan ZynBot:\n1. Buka menu **⚙️ Pengaturan**\n2. Pilih penyedia AI: **Google Gemini**\n3. Masukkan API Key Anda\n4. Klik **Simpan Pengaturan**\n\n💡 Dapatkan API Key Gemini gratis di: *aistudio.google.com*";
+    } else if(errMsg.includes("400")||errMsg.includes("API_KEY_INVALID")){
+      botErrText = "❌ **API Key tidak valid!**\n\nPastikan API Key Gemini sudah benar dan aktif. Cek di menu **⚙️ Pengaturan**.";
+    } else if(errMsg.includes("429")){
+      botErrText = "⏳ **Terlalu banyak permintaan.**\n\nTunggu beberapa detik lalu coba lagi.";
+    } else if(errMsg.includes("403")){
+      botErrText = "🚫 **Akses ditolak.**\n\nAPI Key mungkin tidak memiliki akses ke Gemini API. Cek di Google AI Studio.";
+    } else {
+      botErrText = "⚠️ ZynBot gagal terhubung.\n\n*Error: "+errMsg+"*\n\nCek API Key di menu Pengaturan.";
+    }
+    appendChatMessage(botErrText,"bot");
   }
 }
 async function callAIAPI(query,base64ImageJpeg){
-  const finalApiKey=State.customApiKey||"";
-  if(!finalApiKey)throw new Error("API Key tidak ditemukan.");
+  const finalApiKey=(State.customApiKey||"").trim();
+  if(!finalApiKey){
+    throw new Error("API Key belum diisi! Buka menu Pengaturan → masukkan API Key Gemini Anda.");
+  }
   const provider=State.aiProvider||'gemini';
   const sys="Anda ZynBot, asisten kesehatan keluarga untuk obat anak & kesehatan bayi dari aplikasi ZynHealth. Jawab ramah (Ayah/Bunda), aman, sopan, bersih. Jika label diunggah, bacakan kandungannya. Selalu sarankan periksa ke Dokter Spesialis Anak (DSA) untuk gejala berat.";
   let url='',payload={},headers={"Content-Type":"application/json"};
   if(provider==='gemini'){
-    url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${finalApiKey}`;
+    url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${finalApiKey}`;
     const parts=[{text:query}];
     if(base64ImageJpeg)parts.push({inlineData:{mimeType:"image/jpeg",data:base64ImageJpeg.split(',')[1]}});
     payload={contents:[{parts}],systemInstruction:{parts:[{text:sys}]}};
@@ -1747,6 +1957,7 @@ function initApp(){
     checkAuthRequirement();updateKategoriOptions();fetchObatData();
     ZynAPI.checkConnection().then(s=>{
       updateAPIStatus(s.online);
+      updateChatAIStatus();
       hideLoadingScreen(400);
     });
   }).catch(()=>{
@@ -1759,6 +1970,16 @@ function initApp(){
 
 
 // ── API Status Indicator ──────────────────────────
+function updateChatAIStatus(){
+  const el = document.getElementById('chatAIStatus');
+  if(!el) return;
+  if(State.customApiKey && State.customApiKey.trim()){
+    el.innerHTML = '<span class="text-emerald-500">🟢 '+( State.aiProvider||'gemini').toUpperCase()+' Siap</span>';
+  } else {
+    el.innerHTML = '<span class="text-orange-400">⚠️ API Key belum diset — <button onclick="switchTab('settings')" class="underline text-sky-400">Pengaturan</button></span>';
+  }
+}
+
 function updateAPIStatus(isOnline){
   const dot=document.getElementById('apiStatusDot');
   const icon=document.getElementById('apiStatusIcon');
