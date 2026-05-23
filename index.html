@@ -1239,13 +1239,31 @@ function switchTab(tabId){
 // ── Data Loader ──
 async function fetchObatData(){
   try {
-    const res = await ZynAPI.getObatData();
-    State.data = (Array.isArray(res) && res.length > 0) ? res : DemoData;
-    processData(); updateAPIStatus(ZynAPI.isConfigured());
+    // Race: max 6 detik untuk fetch data
+    const dataPromise = ZynAPI.isConfigured()
+      ? ZynAPI.getObatData()
+      : Promise.resolve(null);
+    const res = await Promise.race([
+      dataPromise,
+      new Promise(resolve => setTimeout(() => resolve(null), 6000))
+    ]);
+    if(Array.isArray(res) && res.length > 0){
+      State.data = res;
+      // Cache to localStorage
+      localStorage.setItem('zynhealth_local_db', JSON.stringify(res));
+      updateAPIStatus(true);
+    } else {
+      // Use cached data
+      const local = localStorage.getItem('zynhealth_local_db');
+      State.data = local ? JSON.parse(local) : DemoData;
+      updateAPIStatus(ZynAPI.isConfigured() && res !== null);
+    }
   } catch(e) {
     const local = localStorage.getItem('zynhealth_local_db');
     State.data = local ? JSON.parse(local) : DemoData;
-    processData(); updateAPIStatus(false);
+    updateAPIStatus(false);
+  } finally {
+    processData();
   }
 }
 function processData(){State.isLoading=false;renderTable();updateDashboard();checkExpiryAlerts();}
@@ -1948,42 +1966,67 @@ function hideLoadingScreen(delay = 0) {
   }, delay);
 }
 
-function initApp(){
-  // Show loading screen steps
-  updateLoadStatus("Menghubungkan ke database...", 10);
-  showSkeletons();
-  const ls=localStorage.getItem('zynhealth_app_settings');
-  if(ls){try{const p=JSON.parse(ls);State.appName=p.appName||State.appName;State.appLogo=p.appLogo||State.appLogo;State.appPinFather=p.appPinFather||State.appPinFather;State.appPinMother=p.appPinMother||State.appPinMother;State.usePin=p.usePin!==undefined?p.usePin:State.usePin;}catch(e){}}
-  const lk=localStorage.getItem('zynhealth_apikey');if(lk)State.customApiKey=lk;
-  const lp=localStorage.getItem('zynhealth_ai_provider');if(lp)State.aiProvider=lp;
-  startLoadingMessages();
-  updateLoadStatus("Memuat konfigurasi...", 30);
+async function initApp(){
+  // ── Step 1: Load from localStorage IMMEDIATELY (no wait) ──
+  const ls = localStorage.getItem('zynhealth_app_settings');
+  if(ls){ try{ const p=JSON.parse(ls); State.appName=p.appName||State.appName; State.appLogo=p.appLogo||State.appLogo; State.appPinFather=p.appPinFather||State.appPinFather; State.appPinMother=p.appPinMother||State.appPinMother; State.usePin=p.usePin!==undefined?p.usePin:State.usePin; }catch(e){} }
+  const lk=localStorage.getItem('zynhealth_apikey'); if(lk) State.customApiKey=lk;
+  const lp=localStorage.getItem('zynhealth_ai_provider'); if(lp) State.aiProvider=lp;
+  const lcat=localStorage.getItem('zynhealth_categories'); if(lcat){ try{ State.categories=JSON.parse(lcat); }catch(e){} }
 
-  ZynAPI.getAppConfig().then(config=>{
-    updateLoadStatus("Konfigurasi dimuat...", 55);
-    if(config){
-      if(config.categories)State.categories=config.categories;
-      if(config.appName)State.appName=config.appName;
-      if(config.appLogo)State.appLogo=config.appLogo;
-      if(config.appPinFather)State.appPinFather=config.appPinFather;
-      if(config.appPinMother)State.appPinMother=config.appPinMother;
-      if(config.usePin!==undefined)State.usePin=config.usePin;
+  // ── Step 2: Apply config from localStorage instantly ──
+  applyAppConfig();
+  checkAuthRequirement();
+  updateKategoriOptions();
+  showSkeletons();
+  startLoadingMessages();
+  updateLoadStatus("Memuat dari perangkat...", 40);
+
+  // ── Step 3: Try GAS in background (max 4 detik) ──
+  // GUARANTEED: loading akan hilang tidak peduli GAS berhasil atau tidak
+  try {
+    updateLoadStatus("Sinkronisasi ke Sheets...", 60);
+
+    // Race: 4 detik atau selesai duluan
+    const configPromise = ZynAPI.isConfigured()
+      ? ZynAPI.getAppConfig()
+      : Promise.resolve(null);
+    const config = await Promise.race([
+      configPromise,
+      new Promise(resolve => setTimeout(() => resolve(null), 4000))
+    ]);
+
+    if(config && config.appName){
+      if(config.categories) { State.categories=config.categories; localStorage.setItem('zynhealth_categories', JSON.stringify(config.categories)); }
+      if(config.appName)    State.appName=config.appName;
+      if(config.appLogo)    State.appLogo=config.appLogo;
+      if(config.appPinFather) State.appPinFather=config.appPinFather;
+      if(config.appPinMother) State.appPinMother=config.appPinMother;
+      if(config.usePin!==undefined) State.usePin=config.usePin;
+      // Save to localStorage for next time
+      localStorage.setItem('zynhealth_app_settings', JSON.stringify({
+        appName:State.appName, appLogo:State.appLogo,
+        appPinFather:State.appPinFather, appPinMother:State.appPinMother, usePin:State.usePin
+      }));
+      applyAppConfig();
+      checkAuthRequirement();
+      updateKategoriOptions();
+      updateAPIStatus(true);
+      updateLoadStatus("Terhubung! ✅", 90);
+    } else {
+      updateAPIStatus(false);
+      updateLoadStatus("Mode Offline ✅", 90);
     }
-    updateLoadStatus("Menyiapkan tampilan...", 75);
-    applyAppConfig();
-    updateLoadStatus("Memuat data obat...", 88);
-    checkAuthRequirement();updateKategoriOptions();fetchObatData();
-    ZynAPI.checkConnection().then(s=>{
-      updateAPIStatus(s.online);
-      updateChatAIStatus();
-      hideLoadingScreen(400);
-    });
-  }).catch(()=>{
-    updateLoadStatus("Mode offline...", 90);
-    applyAppConfig();checkAuthRequirement();updateKategoriOptions();fetchObatData();
+  } catch(e) {
+    console.warn('[ZynHealth] Config fetch error:', e);
     updateAPIStatus(false);
-    hideLoadingScreen(600);
-  });
+    updateLoadStatus("Mode Offline ✅", 90);
+  } finally {
+    // ── GUARANTEED: always hide loading & start app ──
+    updateChatAIStatus();
+    fetchObatData();
+    hideLoadingScreen(300);
+  }
 }
 
 
