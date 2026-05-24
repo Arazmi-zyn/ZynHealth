@@ -1,104 +1,86 @@
 /**
- * 🌿 ZynHealth — API Client v2.0
- * Menghubungkan GitHub Pages → Google Apps Script → Google Sheets
- * 
- * CARA PAKAI:
- * 1. Deploy Code.gs sebagai Web App di Google Apps Script
- * 2. Copy URL Web App → paste ke GAS_API_URL di bawah
- * 3. Upload file ini ke GitHub bersama index.html
+ * 🌿 ZynHealth — API Client v2.5 FIXED
+ * FIX: ALL requests via GET (no POST = no CORS issue)
+ * Data encoded as URL parameter
  */
 
-// ============================================================
-// ⚙️ KONFIGURASI — GANTI URL INI SETELAH DEPLOY GAS
-// ============================================================
 const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyNpMzHXDKxg_sfNIuXwI6Ib--rfS6Auf6oDMF-zd9Ywu7l-b0c0c-JX_C3iAq10ta8/exec";
-// Contoh: "https://script.google.com/macros/s/AKfycbx.../exec"
 
-// ============================================================
-// 🌐 API CLIENT — semua request ke Google Apps Script
-// ============================================================
 const ZynAPI = {
 
-  // Cek apakah API URL sudah diset
   isConfigured() {
     return GAS_API_URL && !GAS_API_URL.includes("GANTI_DENGAN");
   },
 
-  // GET request
-  async get(action) {
-    if (!this.isConfigured()) {
-      console.warn("[ZynAPI] GAS_API_URL belum diset, pakai localStorage");
-      return null;
-    }
+  // ALL requests use GET - no CORS preflight problem
+  async call(action, data) {
+    if (!this.isConfigured()) return null;
     try {
-      const url = `${GAS_API_URL}?action=${action}&t=${Date.now()}`;
-      // Timeout 8s - jangan tunggu GAS selamanya
+      // Build URL with action + data as JSON param
+      let url = GAS_API_URL + "?action=" + encodeURIComponent(action);
+      if (data !== undefined && data !== null) {
+        url += "&data=" + encodeURIComponent(JSON.stringify(data));
+      }
+      url += "&t=" + Date.now();
+
+      // Timeout 10 detik
       const ctrl = new AbortController();
-      const tid = setTimeout(() => ctrl.abort(), 8000);
+      const tid = setTimeout(() => ctrl.abort(), 10000);
+
       const res = await fetch(url, {
         method: "GET",
-        mode: "cors",
-        cache: "no-cache",
+        redirect: "follow",
         signal: ctrl.signal
       });
       clearTimeout(tid);
+
       if (!res.ok) throw new Error("HTTP " + res.status);
-      return await res.json();
+      const json = await res.json();
+      console.log("[ZynAPI] ✅", action, json?.status || json?.length || "ok");
+      return json;
     } catch (err) {
-      if (err.name === 'AbortError') {
-        console.warn("[ZynAPI] ⏱️ Request timeout:", action);
+      if (err.name === "AbortError") {
+        console.warn("[ZynAPI] ⏱️ Timeout:", action);
       } else {
-        console.error("[ZynAPI] GET error:", err.message);
+        console.error("[ZynAPI] ❌", action, err.message);
       }
       return null;
     }
   },
 
-  // POST request
-  async post(action, data) {
-    if (!this.isConfigured()) {
-      console.warn("[ZynAPI] GAS_API_URL belum diset, pakai localStorage");
-      return null;
-    }
-    try {
-      const res = await fetch(GAS_API_URL, {
-        method: "POST",
-        mode: "cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, data, id: data?.id })
-      });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      return await res.json();
-    } catch (err) {
-      console.error("[ZynAPI] POST error:", err);
-      return null;
-    }
-  },
-
-  // ── Data Obat ──────────────────────────────────────
+  // ── Obat Data ──────────────────────────────────
   async getObatData() {
-    const res = await this.get("getObatData");
-    return res || JSON.parse(localStorage.getItem("zynhealth_local_db") || "[]");
+    const res = await this.call("getObatData");
+    if (Array.isArray(res) && res.length > 0) {
+      localStorage.setItem("zynhealth_local_db", JSON.stringify(res));
+      return res;
+    }
+    // Fallback localStorage
+    const local = localStorage.getItem("zynhealth_local_db");
+    return local ? JSON.parse(local) : [];
   },
 
   async saveObat(dataForm) {
-    const res = await this.post("saveObat", dataForm);
-    if (res) return res;
+    const res = await this.call("saveObat", dataForm);
+    if (res && res.status === "success") {
+      console.log("[ZynAPI] ✅ Saved to Sheets:", dataForm.namaObat);
+      return res;
+    }
     // Fallback localStorage
+    console.warn("[ZynAPI] ⚠️ Saving to localStorage (GAS unavailable)");
     return this._localSaveObat(dataForm);
   },
 
   async deleteObat(id) {
-    const res = await this.post("deleteObat", { id });
-    if (res) return res;
-    // Fallback localStorage
+    const res = await this.call("deleteObat", { id: id });
+    if (res && res.status === "success") return res;
     return this._localDeleteObat(id);
   },
 
-  // ── Config ─────────────────────────────────────────
+  // ── Config ─────────────────────────────────────
   async getAppConfig() {
-    // Race: max 4 detik, fallback ke localStorage agar loading tidak stuck
-    const fromGAS = this.get("getAppConfig");
+    // Race: max 4 detik
+    const fromGAS = this.call("getAppConfig");
     const timeout = new Promise(resolve => setTimeout(() => resolve(null), 4000));
     const res = await Promise.race([fromGAS, timeout]);
     if (res && res.appName) return res;
@@ -106,30 +88,38 @@ const ZynAPI = {
     return local ? JSON.parse(local) : null;
   },
 
-  async saveAppConfig(configPayload) {
-    const res = await this.post("saveAppConfig", configPayload);
-    // Selalu simpan ke localStorage juga sebagai backup
+  async saveAppConfig(payload) {
+    const res = await this.call("saveAppConfig", payload);
     localStorage.setItem("zynhealth_app_settings", JSON.stringify({
-      appName: configPayload.appName,
-      appLogo: configPayload.appLogo,
-      appPinFather: configPayload.appPin,
-      appPinMother: configPayload.appPinMother,
-      usePin: configPayload.usePin
+      appName: payload.appName,
+      appLogo: payload.appLogo,
+      appPinFather: payload.appPin,
+      appPinMother: payload.appPinMother,
+      usePin: payload.usePin
     }));
-    return res || { status: "success", message: "Tersimpan lokal (GAS offline)" };
+    return res || { status: "success", message: "Tersimpan lokal" };
   },
 
-  async saveCategories(categoriesList) {
-    const res = await this.post("saveCategories", categoriesList);
-    localStorage.setItem("zynhealth_categories", JSON.stringify(categoriesList));
-    return res || { status: "success", message: "Kategori tersimpan lokal" };
+  async saveCategories(list) {
+    const res = await this.call("saveCategories", list);
+    localStorage.setItem("zynhealth_categories", JSON.stringify(list));
+    return res || { status: "success" };
   },
 
-  async migrateDemoToSheet(demoDataList) {
-    return await this.post("migrateDemoToSheet", demoDataList);
+  async migrateDemoToSheet(list) {
+    return await this.call("migrateDemoToSheet", list);
   },
 
-  // ── Fallback localStorage ──────────────────────────
+  async checkConnection() {
+    if (!this.isConfigured()) return { online: false };
+    try {
+      const res = await this.call("ping");
+      const ok = res && (res.status === "ok" || res.appName);
+      return { online: !!ok };
+    } catch { return { online: false }; }
+  },
+
+  // ── localStorage fallback ──────────────────────
   _localSaveObat(dataForm) {
     let data = JSON.parse(localStorage.getItem("zynhealth_local_db") || "[]");
     if (dataForm.id) {
@@ -155,30 +145,16 @@ const ZynAPI = {
       });
     }
     localStorage.setItem("zynhealth_local_db", JSON.stringify(data));
-    return { status: "success", message: "Tersimpan lokal ✅ (GAS offline)" };
+    return { status: "success", message: "Tersimpan lokal (GAS tidak tersedia)" };
   },
 
   _localDeleteObat(id) {
     let data = JSON.parse(localStorage.getItem("zynhealth_local_db") || "[]");
     data = data.filter(d => String(d.id || d.ID) !== String(id));
     localStorage.setItem("zynhealth_local_db", JSON.stringify(data));
-    return { status: "success", message: "Dihapus lokal ✅" };
-  },
-
-  // ── Status check ───────────────────────────────────
-  async checkConnection() {
-    if (!this.isConfigured()) return { online: false, reason: "URL belum diset" };
-    try {
-      const res = await fetch(`${GAS_API_URL}?action=ping&t=${Date.now()}`, {
-        method: "GET", mode: "cors", signal: AbortSignal.timeout(5000)
-      });
-      return { online: res.ok, reason: res.ok ? "Terhubung ✅" : "Error " + res.status };
-    } catch {
-      return { online: false, reason: "Tidak dapat terhubung ke GAS" };
-    }
+    return { status: "success", message: "Dihapus lokal" };
   }
 };
 
-// Export untuk dipakai index.html
 window.ZynAPI = ZynAPI;
-console.log("[ZynHealth] API Client loaded.", ZynAPI.isConfigured() ? "GAS: ✅ Configured" : "GAS: ⚠️ URL belum diset (pakai localStorage)");
+console.log("[ZynHealth] API v2.5 ready.", ZynAPI.isConfigured() ? "GAS: ✅" : "GAS: ⚠️ URL belum diset");
