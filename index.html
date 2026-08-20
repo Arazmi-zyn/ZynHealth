@@ -24,22 +24,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ZynHealth | Manajemen Obat Anak</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Figtree:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 (function(){var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}else{document.documentElement.classList.add('light');}})();
-tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Nunito','sans-serif']},colors:{brand:{50:'#ecfdf5',100:'#d1fae5',400:'#34d399',500:'#10b981',600:'#059669',700:'#047857'}}}}}
+tailwind.config={darkMode:'class',theme:{extend:{
+  fontFamily:{sans:['Figtree','sans-serif'],display:['Fraunces','serif']},
+  colors:{
+    brand:{50:'#EEF3F1',100:'#D7E4DF',400:'#5C8B82',500:'#3D6B63',600:'#2E534D',700:'#223E3A'},
+    emerald:{50:'#EEF3F1',100:'#D7E4DF',200:'#BFD6CE',300:'#98BEB2',400:'#5C8B82',500:'#3D6B63',600:'#2E534D',700:'#223E3A',800:'#1C322E',900:'#16302C'},
+    teal:{50:'#E9F1F2',100:'#CFE3E5',200:'#AFD0D3',300:'#87B7BB',400:'#4F8A93',500:'#2F6670',600:'#235058',700:'#1A3B41',800:'#152F34',900:'#0F2226'},
+    green:{50:'#EEF3F1',100:'#D7E4DF',200:'#BFD6CE',300:'#8FB0A8',400:'#5C8B82',500:'#3D6B63',600:'#2E534D',700:'#223E3A',900:'#16302C'},
+    blue:{50:'#FBF3E4',100:'#F5E4C1',200:'#EBCD8F',300:'#E0B663',400:'#D9A438',500:'#C4872A',600:'#A16E1F',700:'#7D5518',800:'#5E4013',900:'#4A3310'},
+    sky:{50:'#FDF8ED',100:'#F8ECD2',200:'#F0DBA8',300:'#E8C87C',400:'#E8BE6C',500:'#DDA83E',600:'#C48F26',700:'#9A701D',800:'#785717',900:'#5C4313'},
+    violet:{50:'#F3EEF2',100:'#E4D6E1',200:'#CBB0C6',300:'#AE87A8',400:'#9A6E93',500:'#7C5175',600:'#603D5A',700:'#472C43',800:'#382334',900:'#2B1A28'},
+    purple:{50:'#F5EEF2',100:'#E8D4E2',200:'#D2ADC5',300:'#B689A9',400:'#9A6E93',500:'#7C5175',600:'#603D5A',700:'#472C43',800:'#382334',900:'#2B1A28'},
+    amber:{50:'#FBEFE9',100:'#F3D9C9',200:'#E9BB9E',300:'#DF9C73',400:'#D98354',500:'#C26B3B',600:'#A2552C',700:'#7C4222',800:'#603420',900:'#4A2818'},
+    orange:{50:'#FBEBE3',100:'#F5D3C0',200:'#EAB48E',300:'#DE9560',500:'#C4653A',600:'#A34F29',700:'#7E3E20'},
+    rose:{50:'#FAEEEC',100:'#F1D6D1',200:'#E2AFA6',300:'#D08A7D',400:'#C97066',500:'#B24C3D',600:'#93392C',700:'#712B21'},
+    red:{50:'#FAEEEC',100:'#F3D9D5',200:'#E4B4AC',300:'#D99C90',400:'#C97066',500:'#B24C3D',600:'#93392C',700:'#712B21',900:'#4A1D16'},
+    cyan:{50:'#E9F1F2',100:'#CFE3E5',400:'#4F8A93',500:'#2F6670',600:'#235058'}
+  }
+}}}
 </script>
 <style>
 *{box-sizing:border-box;}
-body{font-family:'Nunito',sans-serif;background:#f0fdf9;}
-.dark body{background:#0a1628;}
-.bg-mesh{background:radial-gradient(at 20% 20%,#d1fae5 0%,transparent 50%),radial-gradient(at 80% 10%,#ccfbf1 0%,transparent 40%),radial-gradient(at 60% 80%,#ecfdf5 0%,transparent 50%),#f8fafc;}
-.dark .bg-mesh{background:radial-gradient(at 10% 20%,rgba(5,150,105,.12) 0%,transparent 50%),radial-gradient(at 80% 80%,rgba(6,182,212,.08) 0%,transparent 50%),#0a1628;}
-.glass{background:rgba(255,255,255,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.6);}
-.dark .glass{background:rgba(15,30,55,.72);border:1px solid rgba(255,255,255,.06);}
+body{font-family:'Figtree',sans-serif;background:#F4F2EC;}
+.dark body{background:#161d1b;}
+.bg-mesh{background:radial-gradient(at 20% 20%,#EEF3F1 0%,transparent 50%),radial-gradient(at 80% 10%,#FBF3E4 0%,transparent 40%),radial-gradient(at 60% 80%,#F3EEF2 0%,transparent 50%),#F6F4EE;}
+.dark .bg-mesh{background:radial-gradient(at 10% 20%,rgba(61,107,99,.16) 0%,transparent 50%),radial-gradient(at 80% 80%,rgba(196,135,42,.10) 0%,transparent 50%),#161d1b;}
+.glass{background:rgba(250,248,244,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.6);}
+.dark .glass{background:rgba(24,32,29,.78);border:1px solid rgba(255,255,255,.06);}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @keyframes fadeSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes scaleIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
@@ -51,25 +68,26 @@ body{font-family:'Nunito',sans-serif;background:#f0fdf9;}
 .float-3{animation:float 5s ease-in-out infinite 1s;}
 .fade-up{animation:fadeSlideUp .45s ease forwards;}
 .scale-in{animation:scaleIn .3s ease forwards;}
-.skeleton{background:linear-gradient(90deg,#e2e8f0 25%,#cbd5e1 50%,#e2e8f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:12px;}
-.dark .skeleton{background:linear-gradient(90deg,#1e293b 25%,#334155 50%,#1e293b 75%);background-size:200% 100%;}
+.skeleton{background:linear-gradient(90deg,#e5e1d6 25%,#d3cdbd 50%,#e5e1d6 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:12px;}
+.dark .skeleton{background:linear-gradient(90deg,#25302c 25%,#37453f 50%,#25302c 75%);background-size:200% 100%;}
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:#a7f3d0;border-radius:99px;}
-.dark ::-webkit-scrollbar-thumb{background:#1e4030;}
+::-webkit-scrollbar-thumb{background:#BFD6CE;border-radius:99px;}
+.dark ::-webkit-scrollbar-thumb{background:#2E534D;}
 .hide-scroll{-ms-overflow-style:none;scrollbar-width:none;}
 .hide-scroll::-webkit-scrollbar{display:none;}
-.nav-active{background:linear-gradient(135deg,#d1fae5,#ccfbf1);color:#059669!important;font-weight:800;}
-.dark .nav-active{background:rgba(5,150,105,.18);color:#34d399!important;}
+.font-display{font-family:'Fraunces',serif;}
+.nav-active{background:#F4F2EC;color:#2E534D!important;font-weight:800;border-left:3px solid #C4872A;box-shadow:inset 0 0 0 1px rgba(46,83,77,.08);}
+.dark .nav-active{background:rgba(196,135,42,.12);color:#E0B663!important;border-left:3px solid #C4872A;}
 .card-hover{transition:all .3s cubic-bezier(.4,0,.2,1);}
-.card-hover:hover{transform:translateY(-5px);box-shadow:0 20px 40px -10px rgba(16,185,129,.15);}
-.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:800;}
-.field-label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#64748b;margin-bottom:5px;}
-.dark .field-label{color:#94a3b8;}
-.field-input{width:100%;padding:9px 14px;background:rgba(255,255,255,.8);border:1px solid #e2e8f0;border-radius:14px;font-size:13px;font-weight:600;font-family:'Nunito',sans-serif;color:#1e293b;transition:all .2s;}
-.dark .field-input{background:rgba(15,23,42,.6);border-color:#334155;color:#e2e8f0;}
-.field-input:focus{outline:none;border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.15);}
-.dot-bounce{width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;animation:dotBounce 1.2s infinite ease-in-out both;}
+.card-hover:hover{transform:translateY(-5px);box-shadow:0 20px 40px -10px rgba(46,83,77,.18);}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px 2px 7px;border-radius:5px;font-size:9.5px;font-weight:700;font-family:'Figtree',sans-serif;letter-spacing:.03em;text-transform:uppercase;border-top:1.5px dashed currentColor;opacity:.92;}
+.field-label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#6b6255;margin-bottom:5px;}
+.dark .field-label{color:#a3a89f;}
+.field-input{width:100%;padding:9px 14px;background:rgba(255,255,255,.8);border:1px solid #e3ddcd;border-radius:14px;font-size:13px;font-weight:600;font-family:'Figtree',sans-serif;color:#2B2620;transition:all .2s;}
+.dark .field-input{background:rgba(22,29,27,.6);border-color:#2E534D;color:#eae7de;}
+.field-input:focus{outline:none;border-color:#3D6B63;box-shadow:0 0 0 3px rgba(61,107,99,.15);}
+.dot-bounce{width:8px;height:8px;border-radius:50%;background:#3D6B63;display:inline-block;animation:dotBounce 1.2s infinite ease-in-out both;}
 .dot-bounce:nth-child(1){animation-delay:-.32s;}
 .dot-bounce:nth-child(2){animation-delay:-.16s;}
 @media print{
@@ -91,7 +109,7 @@ body{font-family:'Nunito',sans-serif;background:#f0fdf9;}
 <body class="flex h-screen overflow-hidden antialiased text-slate-800 dark:text-slate-100 bg-mesh">
 
 <!-- LOGIN SCREEN -->
-<div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 no-print">
+<div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-teal-900 dark:via-emerald-900 dark:to-teal-800 no-print">
   <div class="absolute w-80 h-80 rounded-full bg-emerald-300/30 dark:bg-emerald-700/15 blur-3xl -top-24 -left-24 float-1 pointer-events-none"></div>
   <div class="absolute w-64 h-64 rounded-full bg-teal-300/20 dark:bg-teal-700/10 blur-3xl bottom-0 right-0 float-2 pointer-events-none"></div>
   <div class="absolute top-16 right-12 float-1 text-5xl opacity-20 select-none pointer-events-none">💊</div>
@@ -100,7 +118,7 @@ body{font-family:'Nunito',sans-serif;background:#f0fdf9;}
     <div id="loginLogoWrap" class="w-24 h-24 rounded-3xl overflow-hidden shadow-xl shadow-teal-400/30 mb-4 bg-white">
       <img src="icons/icon-192.png" alt="ZynHealth" class="w-full h-full object-cover">
     </div>
-    <h2 id="loginAppName" class="text-2xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">ZynHealth</h2>
+    <h2 id="loginAppName" class="font-display text-2xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">ZynHealth</h2>
     <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-7 font-600">Catat Obat. Ingat Kesehatan. Jaga Keluarga.</p>
     <div class="flex gap-4 mb-7" id="pinDotRow">
       <span class="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 transition-all duration-200" id="dot-1"></span>
@@ -135,7 +153,7 @@ body{font-family:'Nunito',sans-serif;background:#f0fdf9;}
       <div id="brandLogoWrap" class="w-10 h-10 rounded-xl overflow-hidden shadow-md bg-white">
         <img src="icons/icon-96.png" alt="ZynHealth" class="w-full h-full object-cover">
       </div>
-      <span id="appBrandName" class="text-xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">ZynHealth</span>
+      <span id="appBrandName" class="font-display text-xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">ZynHealth</span>
     </div>
     <button onclick="toggleSidebar()" class="md:hidden p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
   </div>
@@ -180,7 +198,7 @@ body{font-family:'Nunito',sans-serif;background:#f0fdf9;}
     <div class="flex items-center gap-2 md:gap-3">
       <button onclick="toggleSidebar()" class="md:hidden p-1.5 rounded-xl hover:bg-emerald-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"><i data-lucide="menu" class="w-5 h-5"></i></button>
       <div>
-        <h2 class="text-base md:text-lg font-black text-slate-800 dark:text-white truncate max-w-[190px] md:max-w-none leading-tight" id="navGreeting">Halo 👋</h2>
+        <h2 class="font-display text-base md:text-lg font-black text-slate-800 dark:text-white truncate max-w-[190px] md:max-w-none leading-tight" id="navGreeting">Halo 👋</h2>
         <p class="text-[10px] text-slate-400 hidden sm:block font-600">Catat Obat. Ingat Kesehatan. Jaga Keluarga.</p>
       </div>
     </div>
@@ -207,7 +225,7 @@ body{font-family:'Nunito',sans-serif;background:#f0fdf9;}
     <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div class="space-y-2 max-w-lg">
         <span class="px-3 py-1 bg-white/20 backdrop-blur rounded-full text-[10px] md:text-xs font-800 tracking-wide">💡 Kiat Sehat ZynHealth</span>
-        <h3 class="text-xl md:text-3xl font-black leading-tight pt-1">ZynHealth<br class="hidden md:block">Obat Anak Lebih Teratur</h3>
+        <h3 class="font-display text-xl md:text-3xl font-black leading-tight pt-1">ZynHealth<br class="hidden md:block">Obat Anak Lebih Teratur</h3>
         <p class="text-emerald-50/90 text-xs md:text-sm font-600 leading-relaxed">Catat, pantau &amp; kelola semua obat keluarga di satu tempat. Dengan asisten AI ZynBot untuk tanya jawab kesehatan anak.</p>
       </div>
       <div class="flex flex-row md:flex-col gap-3 shrink-0">
@@ -616,14 +634,15 @@ body{font-family:'Nunito',sans-serif;background:#f0fdf9;}
       </div>
       <div id="pinConfigSection" class="grid grid-cols-2 gap-4 hidden">
         <div>
-          <label class="field-label">PIN Ayah (4 digit)</label>
-          <input type="password" id="cfgAppPINFather" pattern="[0-9]*" inputmode="numeric" maxlength="4" placeholder="••••" class="field-input text-center text-2xl tracking-[0.5em]">
+          <label class="field-label">Ganti PIN Ayah (opsional)</label>
+          <input type="password" id="cfgAppPINFather" pattern="[0-9]*" inputmode="numeric" maxlength="4" placeholder="Kosongkan = tetap" class="field-input text-center text-lg tracking-[0.3em]">
         </div>
         <div>
-          <label class="field-label">PIN Bunda (4 digit)</label>
-          <input type="password" id="cfgAppPINMother" pattern="[0-9]*" inputmode="numeric" maxlength="4" placeholder="••••" class="field-input text-center text-2xl tracking-[0.5em]">
+          <label class="field-label">Ganti PIN Bunda (opsional)</label>
+          <input type="password" id="cfgAppPINMother" pattern="[0-9]*" inputmode="numeric" maxlength="4" placeholder="Kosongkan = tetap" class="field-input text-center text-lg tracking-[0.3em]">
         </div>
       </div>
+      <p class="text-[10px] text-slate-400 font-600 mt-2">Kosongkan kolom PIN kalau tidak mau mengganti — PIN lama tetap berlaku.</p>
     </div>
     <div class="flex justify-end pt-2">
       <button onclick="submitAppSettings()" class="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-900 rounded-2xl text-sm shadow-lg shadow-emerald-400/25 flex items-center justify-center gap-2 transition-all">
@@ -742,7 +761,7 @@ const State = {
   appName: 'ZynHealth', appLogo: '',
   appPinFather: '1111', appPinMother: '2222',
   usePin: true, customApiKey: '', aiProvider: 'gemini',
-  isUnlocked: false, currentPinInput: '', currentUserRole: '',
+  isUnlocked: false, currentPinInput: '', currentUserRole: '', loggedInPin: '',
   notes: [], selectedNoteColor: 'emerald', editingNoteId: null
 };
 
@@ -808,8 +827,10 @@ function applyAppConfig(){
   if(el('loginAppName'))el('loginAppName').textContent=State.appName;
   if(el('cfgAppName'))el('cfgAppName').value=State.appName;
   if(el('printAppTitle'))el('printAppTitle').textContent=State.appName.toUpperCase()+' REPORT';
-  if(el('cfgAppPINFather'))el('cfgAppPINFather').value=State.appPinFather;
-  if(el('cfgAppPINMother'))el('cfgAppPINMother').value=State.appPinMother;
+  // Sengaja TIDAK diisi otomatis dengan PIN asli (demi keamanan).
+  // Kosongkan = PIN tidak berubah. Isi 4 digit baru = ganti PIN.
+  if(el('cfgAppPINFather'))el('cfgAppPINFather').value='';
+  if(el('cfgAppPINMother'))el('cfgAppPINMother').value='';
   if(el('cfgLogoBase64'))el('cfgLogoBase64').value=State.appLogo;
   if(el('cfgApiKey'))el('cfgApiKey').value=State.customApiKey;
   if(el('cfgAiProvider'))el('cfgAiProvider').value=State.aiProvider||'gemini';
@@ -835,26 +856,53 @@ function checkAuthRequirement(){
   else{ls.classList.add('opacity-0');setTimeout(()=>ls.classList.add('hidden'),400);}
 }
 
-// ✅ FIX: Compares BOTH father and mother PIN correctly
+// ✅ FIX v2.6: PIN diverifikasi ke SERVER (Code.gs), bukan cuma dibandingkan
+// di browser. Kalau lagi offline / GAS belum diset, jatuh ke cache PIN
+// terakhir yang pernah berhasil login (tersimpan lokal di HP ini saja).
 function pressPin(num){
   if(State.currentPinInput.length>=4)return;
   State.currentPinInput+=num;
   updatePinDots();
-  if(State.currentPinInput.length===4){
-    setTimeout(()=>{
-      const inp=State.currentPinInput;
-      const f=String(State.appPinFather).trim();
-      const m=String(State.appPinMother).trim();
-      if(inp===f){State.currentUserRole="Ayah";authorizeLogin();}
-      else if(inp===m){State.currentUserRole="Bunda";authorizeLogin();}
-      else{showToast("PIN salah! Coba lagi.","error");shakePinDots();clearPin();}
-    },150);
+  if(State.currentPinInput.length===4)verifyAndLogin();
+}
+async function verifyAndLogin(){
+  const inp=State.currentPinInput;
+  const hintEl=document.getElementById('pinHint'); if(hintEl)hintEl.textContent='Memeriksa PIN...';
+  try{
+    const res=await ZynAPI.verifyPin(inp);
+    if(res&&res.status==='success'){
+      State.currentUserRole=res.role;
+      cacheOfflinePin_(inp,res.role);
+      authorizeLogin();
+    }else if(res&&res.status==='error'){
+      showToast(res.message||"PIN salah! Coba lagi.","error");shakePinDots();clearPin();
+    }else{
+      tryOfflinePinFallback_(inp); // res null = offline / GAS belum dikonfigurasi
+    }
+  }catch(e){ tryOfflinePinFallback_(inp); }
+}
+function tryOfflinePinFallback_(inp){
+  let cached=null; try{cached=JSON.parse(localStorage.getItem('zynhealth_offline_pin_cache')||'null');}catch(e){}
+  if(cached&&(inp===cached.father||inp===cached.mother)){
+    State.currentUserRole=inp===cached.father?'Ayah':'Bunda';
+    showToast("Mode offline: masuk pakai PIN tersimpan terakhir di HP ini.","warning");
+    authorizeLogin();
+  }else{
+    showToast("Tidak bisa verifikasi PIN (offline & belum pernah login online).","error");
+    shakePinDots();clearPin();
   }
 }
+function cacheOfflinePin_(pin,role){
+  let cached={}; try{cached=JSON.parse(localStorage.getItem('zynhealth_offline_pin_cache')||'null')||{};}catch(e){}
+  if(role==='Ayah')cached.father=pin; else cached.mother=pin;
+  localStorage.setItem('zynhealth_offline_pin_cache',JSON.stringify(cached));
+}
 function authorizeLogin(){
+  State.loggedInPin=State.currentPinInput; // simpan dulu SEBELUM di-clear
   State.isUnlocked=true;updateDynamicGreeting();
   showToast(`Selamat datang, ${State.currentUserRole}! 👋`,"success");
   checkAuthRequirement();clearPin();
+  fetchObatData(); // sync ulang data dari server pakai PIN yang baru login
 }
 function updatePinDots(){
   for(let i=1;i<=4;i++){
@@ -870,7 +918,7 @@ function shakePinDots(){
   const r=document.getElementById('pinDotRow');
   if(r){r.classList.add('animate-bounce');setTimeout(()=>r.classList.remove('animate-bounce'),600);}
 }
-function lockApp(){State.isUnlocked=false;State.currentUserRole='';clearPin();checkAuthRequirement();}
+function lockApp(){State.isUnlocked=false;State.currentUserRole='';State.loggedInPin='';clearPin();checkAuthRequirement();}
 
 // ── Sidebar ──
 function toggleSidebar(){
@@ -898,7 +946,7 @@ function switchTab(tabId){
 
 // ── Data Loader ──
 function fetchObatData(){
-  ZynAPI.getObatData().then(function(res){
+  ZynAPI.getObatData(State.loggedInPin).then(function(res){
     if(Array.isArray(res) && res.length > 0){
       State.data = res;
       localStorage.setItem('zynhealth_local_db', JSON.stringify(res));
@@ -952,7 +1000,7 @@ function renderChart(dataMap){
   const canvas=document.getElementById('categoryChart');if(!canvas)return;
   const isDark=document.documentElement.classList.contains('dark');
   if(chartInstance)chartInstance.destroy();
-  const colors=['#10b981','#06b6d4','#8b5cf6','#f59e0b','#ef4444','#ec4899'];
+  const colors=['#3D6B63','#C4872A','#7C5175','#B24C3D','#2F6670','#9A6E93'];
   if(!Object.keys(dataMap).length)dataMap={"Belum ada data":1};
   chartInstance=new Chart(canvas.getContext('2d'),{type:'doughnut',data:{labels:Object.keys(dataMap),datasets:[{data:Object.values(dataMap),backgroundColor:colors,borderWidth:0}]},options:{responsive:true,cutout:'75%',plugins:{legend:{display:false}}}});
   const legend=document.getElementById('chartLegend');
@@ -987,10 +1035,10 @@ function editCategory(i){
   .then(r=>{if(r.isConfirmed&&r.value.trim()){State.categories[i]=r.value.trim();updateKategoriOptions();saveCategoriesToBackend();showToast("Kategori diperbarui!");}});
 }
 function deleteCategory(i){
-  Swal.fire({title:'Hapus kategori?',icon:'warning',showCancelButton:true,confirmButtonColor:'#ef4444',confirmButtonText:'Hapus',customClass:{popup:'rounded-2xl',confirmButton:'rounded-xl',cancelButton:'rounded-xl'}})
+  Swal.fire({title:'Hapus kategori?',icon:'warning',showCancelButton:true,confirmButtonColor:'#B24C3D',confirmButtonText:'Hapus',customClass:{popup:'rounded-2xl',confirmButton:'rounded-xl',cancelButton:'rounded-xl'}})
   .then(r=>{if(r.isConfirmed){State.categories.splice(i,1);updateKategoriOptions();saveCategoriesToBackend();showToast("Kategori dihapus!");}});
 }
-function saveCategoriesToBackend(){ ZynAPI.saveCategories(State.categories).catch(function(){}); }
+function saveCategoriesToBackend(){ ZynAPI.saveCategories(State.categories,State.loggedInPin).catch(function(){}); }
 
 // ── Notes System ──
 const NOTE_COLORS={
@@ -1230,10 +1278,10 @@ function editData(id){
   },60);
 }
 function deleteData(id){
-  Swal.fire({title:'Hapus obat ini?',text:'Data tidak dapat dikembalikan.',icon:'warning',showCancelButton:true,confirmButtonColor:'#ef4444',cancelButtonColor:'#94a3b8',confirmButtonText:'Ya, Hapus!',cancelButtonText:'Batal',customClass:{popup:'rounded-3xl',confirmButton:'rounded-xl',cancelButton:'rounded-xl'}})
+  Swal.fire({title:'Hapus obat ini?',text:'Data tidak dapat dikembalikan.',icon:'warning',showCancelButton:true,confirmButtonColor:'#B24C3D',cancelButtonColor:'#94a3b8',confirmButtonText:'Ya, Hapus!',cancelButtonText:'Batal',customClass:{popup:'rounded-3xl',confirmButton:'rounded-xl',cancelButton:'rounded-xl'}})
   .then(r=>{
     if(!r.isConfirmed)return;
-    ZynAPI.deleteObat(id).then(function(res){
+    ZynAPI.deleteObat(id,State.loggedInPin).then(function(res){
       State.data=State.data.filter(d=>String(d.id||d.ID)!==String(id));
       renderTable();updateDashboard();checkExpiryAlerts();
       showToast(res&&res.message?res.message:"Data dihapus!");
@@ -1251,7 +1299,7 @@ function submitData(){
   if(btn){btn.disabled=true;btn.innerHTML='<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> Menyimpan...';lucide.createIcons();}
   const resetBtn=()=>{if(btn){btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i> Simpan Obat';lucide.createIcons();}};
   const done=(msg)=>{resetBtn();closeModal();fetchObatData();showToast(msg);};
-  ZynAPI.saveObat(dataForm).then(function(r){
+  ZynAPI.saveObat(dataForm,State.loggedInPin).then(function(r){
     done(r&&r.message ? r.message : "Berhasil disimpan!");
     fetchObatData();
   }).catch(function(e){ resetBtn(); showToast("Gagal: "+(e.message||"Error"),"error"); });
@@ -1324,7 +1372,7 @@ function clearChatImage(){
   const pc=document.getElementById('chatImagePreviewContainer');if(pc)pc.classList.add('hidden');
 }
 function clearChatHistory(){
-  Swal.fire({title:'Hapus Riwayat?',text:'Riwayat chat akan dihapus.',icon:'warning',showCancelButton:true,confirmButtonColor:'#ef4444',confirmButtonText:'Bersihkan!',customClass:{popup:'rounded-2xl',confirmButton:'rounded-xl',cancelButton:'rounded-xl'}})
+  Swal.fire({title:'Hapus Riwayat?',text:'Riwayat chat akan dihapus.',icon:'warning',showCancelButton:true,confirmButtonColor:'#B24C3D',confirmButtonText:'Bersihkan!',customClass:{popup:'rounded-2xl',confirmButton:'rounded-xl',cancelButton:'rounded-xl'}})
   .then(r=>{
     if(r.isConfirmed){
       const s=document.getElementById('chatMessageStream');
@@ -1442,14 +1490,18 @@ function submitAppSettings(){
   const apiKey=document.getElementById('cfgApiKey').value.trim();
   const aiProvider=document.getElementById('cfgAiProvider').value;
   if(!appName)return showToast("Nama tidak boleh kosong!","warning");
-  if(State.usePin&&(pinF.length!==4||pinM.length!==4))return showToast("PIN Ayah & Bunda wajib 4 digit!","warning");
+  // PIN boleh dikosongkan (artinya: tidak diganti). Kalau diisi, wajib 4 digit.
+  if(pinF && pinF.length!==4)return showToast("PIN Ayah baru harus 4 digit (atau kosongkan saja)!","warning");
+  if(pinM && pinM.length!==4)return showToast("PIN Bunda baru harus 4 digit (atau kosongkan saja)!","warning");
   localStorage.setItem('zynhealth_apikey',apiKey);localStorage.setItem('zynhealth_ai_provider',aiProvider);
   State.customApiKey=apiKey;State.aiProvider=aiProvider;
-  const payload={appName,appPin:pinF,appPinMother:pinM,appLogo:document.getElementById('cfgLogoBase64').value,usePin:State.usePin};
-  localStorage.setItem('zynhealth_app_settings',JSON.stringify({appName,appLogo:payload.appLogo,appPinFather:pinF,appPinMother:pinM,usePin:State.usePin}));
-  ZynAPI.saveAppConfig(payload).then(function(r){
-    State.appName=payload.appName;State.appPinFather=pinF;State.appPinMother=pinM;
-    State.appLogo=payload.appLogo;State.usePin=payload.usePin;
+  const payload={appName,appLogo:document.getElementById('cfgLogoBase64').value,usePin:State.usePin};
+  if(pinF)payload.appPin=pinF;
+  if(pinM)payload.appPinMother=pinM;
+  ZynAPI.saveAppConfig(payload,State.loggedInPin).then(function(r){
+    State.appName=payload.appName;State.appLogo=payload.appLogo;State.usePin=payload.usePin;
+    if(pinF){State.appPinFather=pinF;State.loggedInPin=pinF;} // update PIN sesi kalau PIN sendiri diganti
+    if(pinM){State.appPinMother=pinM;}
     applyAppConfig();showToast(r&&r.message?r.message:"Pengaturan tersimpan!");
   }).catch(function(e){ showToast("Gagal: "+(e.message||"Error"),"error"); });
 }
@@ -1470,8 +1522,12 @@ function printData(){
 function initApp(){
   showSkeletons();
   // Step 1: Load from localStorage instantly (no network wait)
+  // CATATAN: PIN TIDAK lagi disimpan di 'zynhealth_app_settings' (sengaja).
+  // PIN asli cuma hidup di server (Script Properties) + cache offline terpisah
+  // (lihat cacheOfflinePin_/tryOfflinePinFallback_) yang keisi otomatis
+  // setiap kali berhasil login online.
   const ls=localStorage.getItem('zynhealth_app_settings');
-  if(ls){try{const p=JSON.parse(ls);State.appName=p.appName||State.appName;State.appLogo=p.appLogo||State.appLogo;State.appPinFather=p.appPinFather||State.appPinFather;State.appPinMother=p.appPinMother||State.appPinMother;State.usePin=p.usePin!==undefined?p.usePin:State.usePin;}catch(e){}}
+  if(ls){try{const p=JSON.parse(ls);State.appName=p.appName||State.appName;State.appLogo=p.appLogo||State.appLogo;State.usePin=p.usePin!==undefined?p.usePin:State.usePin;}catch(e){}}
   const lk=localStorage.getItem('zynhealth_apikey');if(lk)State.customApiKey=lk;
   const lp=localStorage.getItem('zynhealth_ai_provider');if(lp)State.aiProvider=lp;
   const lcat=localStorage.getItem('zynhealth_categories');if(lcat){try{State.categories=JSON.parse(lcat);}catch(e){}}
@@ -1480,18 +1536,17 @@ function initApp(){
   applyAppConfig();
   checkAuthRequirement();
   updateKategoriOptions();
-  fetchObatData();
+  // fetchObatData() TIDAK dipanggil di sini lagi - baru dipanggil setelah
+  // login sukses (lihat authorizeLogin()), karena sekarang butuh PIN valid.
 
-  // Step 3: Sync from Sheets in background (non-blocking)
+  // Step 3: Sync app identity (nama/logo/kategori) dari Sheets - tidak butuh PIN
   ZynAPI.getAppConfig().then(function(config){
     if(config && config.appName){
       if(config.categories){State.categories=config.categories;localStorage.setItem('zynhealth_categories',JSON.stringify(config.categories));}
       if(config.appName)State.appName=config.appName;
       if(config.appLogo)State.appLogo=config.appLogo;
-      if(config.appPinFather)State.appPinFather=config.appPinFather;
-      if(config.appPinMother)State.appPinMother=config.appPinMother;
       if(config.usePin!==undefined)State.usePin=config.usePin;
-      localStorage.setItem('zynhealth_app_settings',JSON.stringify({appName:State.appName,appLogo:State.appLogo,appPinFather:State.appPinFather,appPinMother:State.appPinMother,usePin:State.usePin}));
+      localStorage.setItem('zynhealth_app_settings',JSON.stringify({appName:State.appName,appLogo:State.appLogo,usePin:State.usePin}));
       applyAppConfig();
       checkAuthRequirement();
       updateKategoriOptions();
@@ -1525,7 +1580,7 @@ function updateChatAIStatus(){
   }
 }
 function migrateDemoData(){
-  ZynAPI.migrateDemoToSheet(DemoData).then(function(r){
+  ZynAPI.migrateDemoToSheet(DemoData,State.loggedInPin).then(function(r){
     if(r&&r.status==="success"){showToast(r.message);fetchObatData();}
   }).catch(function(){showToast("Gagal migrasi","error");});
 }
